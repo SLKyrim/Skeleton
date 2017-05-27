@@ -39,7 +39,6 @@
                     <Label Content="电机及控制串口：" HorizontalAlignment="Left" Margin="5,0,10,0" ></Label>
                     <ComboBox  Name="ComboBox1"   SelectedIndex="0"  DropDownClosed="ComboBox1_OnDropDownClosed" >
                         <ComboBoxItem>请选择串口</ComboBoxItem>
-
                     </ComboBox>
                 </StackPanel>
                 <StackPanel Margin="0,5,0,0" Name="StackPanel1" Grid.Column="0" Grid.Row="1" Orientation="Horizontal">

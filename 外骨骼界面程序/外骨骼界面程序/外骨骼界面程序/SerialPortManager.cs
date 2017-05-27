@@ -19,13 +19,17 @@ namespace 外骨骼界面程序
         private string dataString = null;
         private bool IsTrain = false;
 
+        private SerialPort SerialPort1;//电机串口
+        private SerialPort SerialPort2;//压力和倾角串口
+        private SerialPort SerialPort3;//角度串口
+
         #region 压力参数
-        private SerialPort SerialPort1;
-                private SerialPort SerialPort2 ;
-                private  SerialPort SerialPort3;
-                public Int16[] tempPress = new Int16[8];//存储压力AD转换后的值（0-4096）
-                private Int16[] tempAngle = new Int16[8];//存储倾角AD转换后的值（0-4096）
-                public double[] dirangle = new double[8];//存储角度值（-90°到90°）
+
+        //8个压力传感器所需参数
+        //4个倾角传感器（分别有x轴和y轴）所需参数
+        public Int16[] tempPress = new Int16[8];//存储压力AD转换后的值（0-4096）
+        private Int16[] tempAngle = new Int16[8];//存储倾角AD转换后的值（0-4096）
+        public double[] dirangle = new double[8];//存储角度值（-90°到90°）
 
         #endregion
 
@@ -417,7 +421,7 @@ namespace 外骨骼界面程序
             //}
             #endregion
 
-            #region 电机及其控制
+        #region 电机及其控制
 
         public void serialPortInt1(string comstring)
         {
@@ -515,8 +519,6 @@ namespace 外骨骼界面程序
 
 
         }
-
-
 
         public void OverTrain()
         {

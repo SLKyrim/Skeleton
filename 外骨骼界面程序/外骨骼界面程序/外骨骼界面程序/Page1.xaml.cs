@@ -141,7 +141,6 @@ namespace 外骨骼界面程序
             string nowTime = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             TextBoxday.Text = nowTime;
             spInt();
-
         }
 
         public void ShowSenderTimer(object sender, EventArgs e)
