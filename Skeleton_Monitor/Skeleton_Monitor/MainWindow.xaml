@@ -4,9 +4,10 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Skeleton_Monitor"
-        mc:Ignorable="d"
+        mc:Ignorable="d" WindowStartupLocation="CenterScreen"
         Title="外骨骼控制界面"  Icon="Image/logo2016.png" 
-        MinHeight="480" MinWidth="1020" >
+        Height="530" Width="1040"
+        MinHeight="530" MinWidth="1040" >
     <Grid>
         <Frame Source="FunctionWindow.xaml"  NavigationUIVisibility="Hidden" Navigated="Frame_Navigated" ></Frame>
     </Grid>

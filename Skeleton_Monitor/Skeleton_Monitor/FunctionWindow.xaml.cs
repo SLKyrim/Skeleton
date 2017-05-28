@@ -29,7 +29,7 @@ namespace Skeleton_Monitor
         {
             InitializeComponent();
         }
-
+ 
         private Methods methods = new Methods();
 
         #region 参数定义
@@ -39,10 +39,11 @@ namespace Skeleton_Monitor
         //扫描串口
         public string[] SPCount = null;           //用来存储计算机串口名称数组
         public int comcount = 0;                  //用来存储计算机可用串口数目，初始化为0
+        public bool flag = false;
         public string motor_com = null;           //存储电机所用串口
         public string press_com = null;           //存储压力及倾角传感器所用串口
         public string angle_com = null;           //存储角度传感器所用串口
-        public bool flag = false;
+
 
         //串口
         private SerialPort motor_SerialPort = new SerialPort(); //电机串口
@@ -63,8 +64,25 @@ namespace Skeleton_Monitor
 
         //6个角度传感器所需参数（似乎只用到4个角度传感器）
         public double[] _angle = new double[6];
-        private double[] _angleInitialization = new double[6];
+        private double[] _angleInitialization = new double[6];//【角度初始化】按钮也用到
         private Int16[] tempAngle2 = new Int16[8];//存储倾角AD转换后的值（0-4096）
+
+        //【添加命令】及【添加命令】按钮所需参数
+        private byte[] cmdSendBytes = new byte[19]; //储存从电机控制窗口输入的字节命令
+        public int choosecount = 0;                 //记录已添加命令的电机的个数
+
+        //【角度初始化】按钮及Action委托所需参数
+        public bool IsTrueForefootZero = false;
+
+        //【动作开始】按钮及Action委托所需参数
+        public bool IsTrueClickDown = false;
+
+        //Action委托所需参数
+        public bool IsTrueStanduping = false;
+        public bool IsTrueSquatting = false;
+        public bool istrueX = false;
+        public bool istrueY = false;
+
         #endregion
 
         #region 文本输出
@@ -75,10 +93,11 @@ namespace Skeleton_Monitor
             ShowTimer.Interval = new TimeSpan(0, 0, 0, 1, 0); //设置刻度之间的时间值，设定为1秒（即文本框会1秒改变一次输出文本）
             ShowTimer.Start();
 
-            //DispatcherTimer showTimer = new DispatcherTimer();
-            //showTimer.Tick += new EventHandler(ShowSenderTimer); //增加了一个叫ShowSenderTimer的在电机和传感器的只读文本框中输出信息的委托
-            //showTimer.Interval = new TimeSpan(0, 0, 0, 0, 100);  //文本变化间隔是??毫秒(并不准确)
-            //showTimer.Start();
+            DispatcherTimer showTimer = new DispatcherTimer();
+            showTimer.Tick += new EventHandler(ShowSenderTimer); //增加了一个叫ShowSenderTimer的在电机和传感器的只读文本框中输出信息的委托
+            showTimer.Tick += new EventHandler(Action);
+            showTimer.Interval = new TimeSpan(0, 0, 0, 0, 100);  //文本变化间隔是??毫秒(并不准确)
+            showTimer.Start();
         }
 
         public void ShowCurTimer(object sender, EventArgs e)//取当前时间并扫描可用串口的委托
@@ -94,7 +113,8 @@ namespace Skeleton_Monitor
                 now.Second.ToString("00"));
 
             timeDateTextBlock.Text = timeDateString;
-            
+
+            //methods.ScanPorts(SPCount, Motor_comboBox, Press_comboBox, Angle_comboBox, motor_com, press_com, angle_com, Out_textBox);//扫描可用串口
             ScanPorts();//扫描可用串口
         }
 
@@ -178,11 +198,378 @@ namespace Skeleton_Monitor
                 }
             }
         }
-    
+
+        public void ShowSenderTimer(object sender, EventArgs e)//电机状态，压力，倾角，角度传感器状态的文本输出
+        {
+            //电机1的文本框输出
+            Motor1_enable_textBox.Text = enable[0].ToString();             //使能
+            Motor1_direction_textBox.Text = direction[0].ToString("F");    //方向；"F"格式，默认保留两位小数
+            Motor1_speed_textBox.Text = speed[0].ToString("F");            //转速
+            Motor1_current_textBox.Text = current[0].ToString("F");        //电流
+            //电机2的文本框输出
+            Motor2_enable_textBox.Text = enable[1].ToString();
+            Motor2_direction_textBox.Text = direction[1].ToString("F");
+            Motor2_speed_textBox.Text = speed[1].ToString("F");
+            Motor2_current_textBox.Text = current[1].ToString("F");
+            //电机3的文本框输出
+            Motor3_enable_textBox.Text = enable[2].ToString();
+            Motor3_direction_textBox.Text = direction[2].ToString("F");
+            Motor3_speed_textBox.Text = speed[2].ToString("F");
+            Motor3_current_textBox.Text = current[2].ToString("F");
+            //电机4的文本框输出
+            Motor4_enable_textBox.Text = enable[3].ToString();
+            Motor4_direction_textBox.Text = direction[3].ToString("F");
+            Motor4_speed_textBox.Text = speed[3].ToString("F");
+            Motor4_current_textBox.Text = current[3].ToString("F");
+
+            //8个压力传感器的文本框输出
+            Pressure1_Textbox.Text = tempPress[0].ToString();
+            Pressure2_Textbox.Text = tempPress[1].ToString();
+            Pressure3_Textbox.Text = tempPress[2].ToString();
+            Pressure4_Textbox.Text = tempPress[3].ToString();
+            Pressure5_Textbox.Text = tempPress[4].ToString();
+            Pressure6_Textbox.Text = tempPress[5].ToString();
+            Pressure7_Textbox.Text = tempPress[6].ToString();
+            Pressure8_Textbox.Text = tempPress[7].ToString();
+
+            //4个倾角传感器各自的x轴和y轴的文本框输出
+            Dip1_x_TextBox.Text = dirangle[0].ToString("F");
+            Dip1_y_TextBox.Text = dirangle[1].ToString("F");
+            Dip2_x_TextBox.Text = dirangle[2].ToString("F");
+            Dip2_y_TextBox.Text = dirangle[3].ToString("F");
+            Dip3_x_TextBox.Text = dirangle[4].ToString("F");
+            Dip3_y_TextBox.Text = dirangle[5].ToString("F");
+            Dip4_x_TextBox.Text = dirangle[6].ToString("F");
+            Dip4_y_TextBox.Text = dirangle[7].ToString("F");
+
+            //6个角度传感器的文本框输出
+            Angle1_Textbox.Text = _angle[0].ToString("F");
+            Angle2_Textbox.Text = _angle[1].ToString("F");
+            Angle3_Textbox.Text = _angle[2].ToString("F");
+            Angle4_Textbox.Text = _angle[3].ToString("F");
+            Angle5_Textbox.Text = _angle[4].ToString("F");
+            Angle6_Textbox.Text = _angle[5].ToString("F");
+        }
+
+        public void Action(object sender, EventArgs e)//动作
+        {
+            //检测开始按键是否按下
+            if (IsTrueClickDown)
+            {
+                //初始化已经完成，开始检测状态
+                if (IsTrueForefootZero)
+                {
+                    //下蹲..检测后背倾角变化 腿角度是否为站立  是否起立中
+                    if (!IsTrueStanduping)
+                    {
+
+                        //正在下蹲中
+                        IsTrueSquatting = true;
+                        //如果腿部角度未达到阈值
+                        if (dirangle[7] < 75 && (Math.Abs(_angle[2]) < 7 || Math.Abs(_angle[3]) < 7))
+                        {
+                            istrueX = true;
+                        }
+                        if (istrueX && (Math.Abs(_angle[2]) < 60 || Math.Abs(_angle[3]) < 60))
+                        {
+                            int rSpeed1 = 3600;
+                            int rSpeed2 = 3000;
+
+
+                            byte[] rSpeedBytes1 = BitConverter.GetBytes(rSpeed1);
+                            byte[] rSpeedBytes2 = BitConverter.GetBytes(rSpeed2);
+                            //腿部电机控制
+
+                            if (_angle[2] > -60)
+                            {
+                                cmdSendBytes[5] = 1;
+                                cmdSendBytes[6] = 1;
+                                cmdSendBytes[7] = rSpeedBytes1[1];
+                                cmdSendBytes[8] = rSpeedBytes1[0];
+                                if (_angle[2] < -50)
+                                {
+                                    cmdSendBytes[7] = rSpeedBytes2[1];
+                                    cmdSendBytes[8] = rSpeedBytes2[0];
+                                }
+                            }
+                            else
+                            {
+                                cmdSendBytes[5] = 0;
+                                cmdSendBytes[6] = 0;
+                                cmdSendBytes[7] = 0;
+                                cmdSendBytes[8] = 0;
+                            }
+                            if (_angle[3] < 60)
+                            {
+                                cmdSendBytes[9] = 1;
+                                cmdSendBytes[10] = 0;
+                                cmdSendBytes[11] = rSpeedBytes1[1];
+                                cmdSendBytes[12] = rSpeedBytes1[0];
+                                if (_angle[3] > 50)
+                                {
+                                    cmdSendBytes[11] = rSpeedBytes2[1];
+                                    cmdSendBytes[12] = rSpeedBytes2[0];
+                                }
+                            }
+                            else
+                            {
+                                cmdSendBytes[9] = 0;
+                                cmdSendBytes[10] = 0;
+                                cmdSendBytes[11] = 0;
+                                cmdSendBytes[12] = 0;
+                            }
+
+
+                            //肘部角度值检测以 确定手部运动
+                            //角度大于阈值（40度） 放下动作  小于阈值 无动作
+                            if (_angle[0] > 40)
+                            {
+                                cmdSendBytes[1] = 1;
+                                cmdSendBytes[2] = 1;
+                                cmdSendBytes[3] = rSpeedBytes1[1];
+                                cmdSendBytes[4] = rSpeedBytes1[0];
+
+                            }
+                            else
+                            {
+                                if (_angle[0] > 5)
+                                {
+                                    cmdSendBytes[1] = 1;
+                                    cmdSendBytes[2] = 1;
+                                    cmdSendBytes[3] = rSpeedBytes2[1];
+                                    cmdSendBytes[4] = rSpeedBytes2[0];
+                                }
+                                else
+                                {
+                                    //肘部电机停止 
+                                    cmdSendBytes[1] = 0;
+
+                                }
+
+                            }
+                            if (_angle[1] < -40)
+                            {
+                                cmdSendBytes[13] = 1;
+                                cmdSendBytes[14] = 0;
+                                cmdSendBytes[15] = rSpeedBytes1[1];
+                                cmdSendBytes[16] = rSpeedBytes1[0];
+                            }
+                            else
+                            {
+                                if (_angle[1] < -5)
+                                {
+
+                                    cmdSendBytes[13] = 1;
+                                    cmdSendBytes[14] = 0;
+                                    cmdSendBytes[15] = rSpeedBytes2[1];
+                                    cmdSendBytes[16] = rSpeedBytes2[0];
+                                }
+                                else
+                                {
+                                    //肘部电机停止 
+                                    cmdSendBytes[13] = 0;
+                                }
+
+                            }
+
+                        }
+                        else
+                        {
+                            cmdSendBytes[5] = 0;
+                            cmdSendBytes[6] = 0;
+                            cmdSendBytes[7] = 0;
+                            cmdSendBytes[8] = 0;
+                            cmdSendBytes[9] = 0;
+                            cmdSendBytes[10] = 0;
+                            cmdSendBytes[11] = 0;
+                            cmdSendBytes[12] = 0;
+                            //肘部小于阈值
+                            if (_angle[0] < 5 && _angle[1] > -5)
+                            {
+                                cmdSendBytes[1] = 0;
+                                cmdSendBytes[2] = 0;
+                                cmdSendBytes[3] = 0;
+                                cmdSendBytes[4] = 0;
+                                cmdSendBytes[13] = 0;
+                                cmdSendBytes[14] = 0;
+                                cmdSendBytes[15] = 0;
+                                cmdSendBytes[16] = 0;
+                                IsTrueSquatting = false;
+                                istrueX = false;
+                            }
+                        }
+
+                        methods.SendControlCMD(motor_SerialPort, cmdSendBytes);
+                    }
+
+                    //起立 腿部大于阈值 脚底压力和变化 是否在下蹲中
+                    if (!IsTrueSquatting)
+                    {
+                        //起立中
+                        IsTrueStanduping = true;
+                        //判断腿部阈值是否近似于0
+                        //int press = 0;
+                        //for (int i = 0; i < 8; i++)
+                        //{
+                        //    press += spmManager.tempPress[i];
+                        //}
+                        if (tempPress[7] > 40)
+                        {
+                            istrueY = true;
+                        }
+                        if (istrueY)
+                        {
+                            int rSpeed1 = 3600;
+                            int rSpeed2 = 3000;
+
+
+                            byte[] rSpeedBytes1 = BitConverter.GetBytes(rSpeed1);
+                            byte[] rSpeedBytes2 = BitConverter.GetBytes(rSpeed2);
+                            //  腿部电机控制
+
+                            if (_angle[2] < -5)
+                            {
+                                cmdSendBytes[5] = 1;
+                                cmdSendBytes[6] = 0;
+                                cmdSendBytes[7] = rSpeedBytes1[1];
+                                cmdSendBytes[8] = rSpeedBytes1[0];
+                                if (_angle[2] > -10)
+                                {
+                                    cmdSendBytes[7] = rSpeedBytes2[1];
+                                    cmdSendBytes[8] = rSpeedBytes2[0];
+                                }
+                            }
+                            else
+                            {
+                                cmdSendBytes[5] = 0;
+                            }
+                            if (_angle[3] > 5)
+                            {
+                                cmdSendBytes[9] = 1;
+                                cmdSendBytes[10] = 1;
+                                cmdSendBytes[11] = rSpeedBytes1[1];
+                                cmdSendBytes[12] = rSpeedBytes1[0];
+                                if (_angle[3] < 10)
+                                {
+                                    cmdSendBytes[11] = rSpeedBytes2[1];
+                                    cmdSendBytes[12] = rSpeedBytes2[0];
+                                }
+                            }
+                            else
+                            {
+                                cmdSendBytes[9] = 0;
+                            }
+
+                            if (tempPress[7] > 200)
+                            {  //肘部角度值检测以 确定手部运动
+                               // 角度大于阈值（10度） 放下动作 小于阈值 无动作
+                                if (_angle[0] < 50)
+                                {
+                                    cmdSendBytes[1] = 1;
+                                    cmdSendBytes[2] = 0;
+                                    cmdSendBytes[3] = rSpeedBytes1[1];
+                                    cmdSendBytes[4] = rSpeedBytes1[0];
+
+                                }
+                                else
+                                {
+                                    if (_angle[0] < 60)
+                                    {
+                                        cmdSendBytes[1] = 1;
+                                        cmdSendBytes[2] = 0;
+                                        cmdSendBytes[3] = rSpeedBytes2[1];
+                                        cmdSendBytes[4] = rSpeedBytes2[0];
+                                    }
+                                    else
+                                    {
+                                        //肘部电机停止
+                                        cmdSendBytes[1] = 0;
+                                        cmdSendBytes[2] = 0;
+                                        cmdSendBytes[3] = 0;
+                                        cmdSendBytes[4] = 0;
+                                    }
+
+                                }
+                                if (_angle[1] > -50)
+                                {
+                                    cmdSendBytes[13] = 1;
+                                    cmdSendBytes[14] = 1;
+                                    cmdSendBytes[15] = rSpeedBytes1[1];
+                                    cmdSendBytes[16] = rSpeedBytes1[0];
+                                }
+                                else
+                                {
+                                    if (_angle[1] > -60)
+                                    {
+                                        cmdSendBytes[13] = 1;
+                                        cmdSendBytes[14] = 1;
+                                        cmdSendBytes[15] = rSpeedBytes2[1];
+                                        cmdSendBytes[16] = rSpeedBytes2[0];
+                                    }
+                                    else
+                                    {
+                                        // 肘部电机停止
+                                        cmdSendBytes[13] = 0;
+
+                                    }
+
+                                }
+                            }
+                            else
+                            {
+                                cmdSendBytes[1] = 0;
+                                cmdSendBytes[2] = 0;
+                                cmdSendBytes[3] = 0;
+                                cmdSendBytes[4] = 0;
+                                cmdSendBytes[13] = 0;
+                                cmdSendBytes[14] = 0;
+                                cmdSendBytes[15] = 0;
+                                cmdSendBytes[16] = 0;
+                            }
+
+                        }
+                        if (Math.Abs(_angle[2]) < 5 && Math.Abs(_angle[3]) < 5)
+                        {
+                            cmdSendBytes[5] = 0;
+                            cmdSendBytes[6] = 0;
+                            cmdSendBytes[7] = 0;
+                            cmdSendBytes[8] = 0;
+                            cmdSendBytes[9] = 0;
+                            cmdSendBytes[10] = 0;
+                            cmdSendBytes[11] = 0;
+                            cmdSendBytes[12] = 0;
+                            if (istrueY && tempPress[7] > 200)
+                            {
+                                if (Math.Abs(_angle[0]) > 60 && Math.Abs(_angle[1]) > 60)
+                                {
+                                    cmdSendBytes[1] = 0;
+                                    cmdSendBytes[2] = 0;
+                                    cmdSendBytes[3] = 0;
+                                    cmdSendBytes[4] = 0;
+                                    cmdSendBytes[13] = 0;
+                                    cmdSendBytes[14] = 0;
+                                    cmdSendBytes[15] = 0;
+                                    cmdSendBytes[16] = 0;
+                                    IsTrueStanduping = false;
+                                    istrueY = false;
+                                }
+
+                            }
+                            else
+                            {
+                                IsTrueStanduping = false;
+                                istrueY = false;
+                            }
+                        }
+                        methods.SendControlCMD(motor_SerialPort, cmdSendBytes);
+                    }
+                }
+            }
+        }
 
         #endregion
 
-        #region comboBox控件
+        #region ComboBox控件
 
         #region 电机算法
         private void Motor_comboBox_DropDownClosed(object sender, EventArgs e)//电机及控制串口下拉窗口关闭后执行
@@ -327,7 +714,7 @@ namespace Skeleton_Monitor
                         methods.InitPort(angle_SerialPort, SPCount[i]);
                         angle_SerialPort.DataReceived += new SerialDataReceivedEventHandler(angle_DataReceived);  //接收事件处理方法angle_DataReceived即电机的算法
 
-                        methods.SendCommands();
+                        methods.SendAngleCMD(angle_SerialPort);
                     }
                 }
             }
@@ -359,6 +746,155 @@ namespace Skeleton_Monitor
         #endregion
 
         #endregion
+
+        #region Button控件
+        private void Add_button_Click(object sender, RoutedEventArgs e)//点击【添加命令】按钮时执行
+        {
+            int add_enable = Convert.ToInt16(MotorControl_enable_textBox.Text);
+            int add_direction = Convert.ToInt16(MotorControl_direction_textBox.Text);
+            int add_speed = Convert.ToInt16(MotorControl_speed_textBox.Text);
+            int add_motorNum = Convert.ToInt16(MotorControl_motorNum_textBox.Text);
+
+            if (add_motorNum != 1 && add_motorNum != 2 && add_motorNum != 3 && add_motorNum != 4)
+                MessageBox.Show("选择电机号请输入1或2或3或4");
+            else
+            {
+                if (add_enable != 0 && add_enable != 1)
+                    MessageBox.Show("选择是否使能请输入0或1");
+                else
+                {
+                    if (add_speed > 3000 || add_speed < 1500)
+                        MessageBox.Show("输入转速无效，请在范围1500~3000内选择");
+                    else
+                    {
+                        if (add_direction != 0 && add_direction != 1)
+                            MessageBox.Show("选择电机方向请输入0或1");
+                        else
+                        {
+
+                            choosecount++;
+
+                            if (choosecount < 5) /*？？？重新输入重号的电机怎么办，此处注定一次输入只能最多输入4个？？？*/
+                                MotorControl_chosenCount_textBox.Text = choosecount.ToString(); //显示已添加电机数
+
+                            byte add_enablebyte = Convert.ToByte(add_enable);           //使能数值命令转字节命令
+                            byte add_directionbyte = Convert.ToByte(add_direction);     //方向数值命令转字节命令
+                            byte[] add_speedbytes = BitConverter.GetBytes(add_speed);   //转速数值命令转字节命令
+                            byte add_motorNumbyte = Convert.ToByte(add_motorNum);       //电机号数值命令转字节命令
+
+                            //cmdSendBytes[0] = 0x23;//开始字符
+                            //cmdSendBytes[17] = 0x0D;//结束字符
+                            //cmdSendBytes[18] = 0x0A;
+
+                            switch (add_motorNum)
+                            {
+                                case 1: //电机1添加字节命令
+                                    cmdSendBytes[1] = add_enablebyte;
+                                    cmdSendBytes[2] = add_directionbyte;
+                                    cmdSendBytes[3] = add_speedbytes[1];
+                                    cmdSendBytes[4] = add_speedbytes[0];
+                                    In_textBox.Text = "电机" + add_motorNum + "使能" + add_enable + "转速" + add_speed;
+                                    break;
+                                case 2: //电机2添加字节命令
+                                    cmdSendBytes[5] = add_enablebyte;
+                                    cmdSendBytes[6] = add_directionbyte;
+                                    cmdSendBytes[7] = add_speedbytes[1];
+                                    cmdSendBytes[8] = add_speedbytes[0];
+                                    In_textBox.Text = "电机" + add_motorNum + "使能" + add_enable + "转速" + add_speed;
+                                    break;
+                                case 3: //电机3添加字节命令
+                                    cmdSendBytes[9] = add_enablebyte;
+                                    cmdSendBytes[10] = add_directionbyte;
+                                    cmdSendBytes[11] = add_speedbytes[1];
+                                    cmdSendBytes[12] = add_speedbytes[0];
+                                    In_textBox.Text = "电机" + add_motorNum + "使能" + add_enable + "转速" + add_speed;
+                                    break;
+                                case 4: //电机4添加字节命令
+                                    cmdSendBytes[13] = add_enablebyte;
+                                    cmdSendBytes[14] = add_directionbyte;
+                                    cmdSendBytes[15] = add_speedbytes[1];
+                                    cmdSendBytes[16] = add_speedbytes[0];
+                                    In_textBox.Text = "电机" + add_motorNum + "使能" + add_enable + "转速" + add_speed;
+                                    break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private void MotorStop_button_Click(object sender, RoutedEventArgs e)//点击【电机停止】按钮时执行
+        {
+            byte[] clearBytes = new byte[19] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+            methods.SendControlCMD(motor_SerialPort, clearBytes);
+        }
+
+        private void Send_button_Click(object sender, RoutedEventArgs e)//点击【发送命令】按钮时执行
+        {
+            if (cmdSendBytes != null)
+            {
+                Send_button.Content = "正在发送...";                    //改变发送命令按钮的文本为“正在发送...”，表示正在给电机串口写入字节命令  
+                methods.SendControlCMD(motor_SerialPort, cmdSendBytes); //给电机串口写入字节命令
+                Send_button.Content = "发送命令";                       //命令发送完毕后按钮文本变回来
+                Out_textBox.Text = "已发送至电机";                      //【输出信息窗口】显示“已发送至电机”
+                cmdSendBytes = new byte[19] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };//重置字节命令存储器cmdSendBytes
+                //In_textBox.Text = "";                                   //清空输入信息窗口
+                choosecount = 0;                                        //重置已添加命令电机个数
+            }
+            else
+            {
+                MessageBox.Show("未给电机添加参数");
+            }
+        }
+
+        private void AngleInitializeButton_Click(object sender, RoutedEventArgs e)//点击【角度初始化】按钮时执行
+        {
+            AngleInit_button.Background = new SolidColorBrush(Color.FromArgb(255, 173, 255, 47));
+
+            //角度初始化开始
+            for (int i = 0; i < 6; i++)
+                _angleInitialization[i] = 0;
+
+            int numberOfGather = 5;
+            for (int i = 0; i < numberOfGather; i++)
+            {
+                for (int j = 0; j < 6; j++)
+                    _angleInitialization[j] += _angle[j];
+            }
+            for (int i = 0; i < 6; i++)
+                _angleInitialization[i] /= numberOfGather;
+            //角度初始化完成
+
+            IsTrueForefootZero = true;
+            AngleInit_button.Content = "初始化完成";
+        }
+
+        private void ActionStartButton_Click(object sender, RoutedEventArgs e)//点击【动作开始】按钮时执行
+        {
+            //需要获取角度、倾角、足底压力信息，并实现电机操控
+            //时间触发 为真
+
+            ActionStart_button.Content = "已开始";
+            IsTrueClickDown = true;
+            ActionStart_button.Background = Brushes.DarkSalmon;
+            ActionStop_button.Background = Brushes.White;
+
+            ActionStart_button.IsEnabled = false;
+            ActionStop_button.IsEnabled = true;
+        }
+
+        private void ActionStopButton_Click(object sender, RoutedEventArgs e)//点击【动作停止】按钮时执行
+        {
+            ActionStart_button.Content = "动作开始";
+            ActionStart_button.Background = Brushes.White;
+            IsTrueClickDown = false;
+            ActionStop_button.Background = Brushes.DarkSalmon;
+
+            ActionStart_button.IsEnabled = true;
+            ActionStop_button.IsEnabled = false;
+        }
+        #endregion
+
 
     }
 }

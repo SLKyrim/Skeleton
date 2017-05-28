@@ -65,22 +65,246 @@
                         </Grid>
                     </DockPanel>
                 </GroupBox>
-                <GroupBox Header="电机控制" DockPanel.Dock="Top" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
-
+                <!--电机控制-->
+                <!--手动控制电机使用说明：0或1决定使能；0或1决定方向；转速不高于3000；号数在1~4之间选择-->
+                <GroupBox Header="电机控制" Margin="5,5,0,5" DockPanel.Dock="Top" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
+                    <StackPanel Orientation="Vertical" Margin="1">
+                        <StackPanel Orientation="Horizontal" Margin="0">
+                            <Label Content="使能："/>
+                            <TextBox x:Name="MotorControl_enable_textBox" Width="70" Height="20" Text="0"/>
+                            <Label Content="方向：" Margin="18,0,0,0"/>
+                            <TextBox x:Name="MotorControl_direction_textBox" Width="70" Height="20" Text="0"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0">
+                            <Label Content="转速：" />
+                            <TextBox x:Name="MotorControl_speed_textBox" Width="70" Height="20" Text="0"/>
+                            <Label Content="号数：" Margin="18,2,0,0"/>
+                            <TextBox x:Name="MotorControl_motorNum_textBox" Width="70" Height="20" Text="0"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0">
+                            <Label Content="已添加电机数："/>
+                            <TextBox x:Name="MotorControl_chosenCount_textBox" IsReadOnly="True" Height="20" Width="22"/>
+                            <Button x:Name="Add_button" Margin="79,0,0,0" Content="添加命令"  Height="20" Width="55" Click="Add_button_Click"/>
+                        </StackPanel>
+                    </StackPanel>
                 </GroupBox>
-                <GroupBox Header="输入信息窗口" DockPanel.Dock="Top" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
-                    <TextBox x:Name="In_textBox" IsReadOnly="True" Margin="0" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" AcceptsReturn="True" MinLines="4"/>
+                <!--输入信息窗口-->
+                <GroupBox Header="输入信息窗口" Margin="5,5,0,5" DockPanel.Dock="Top" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
+                    <TextBox x:Name="In_textBox" Height="70" IsReadOnly="True" Margin="0" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" AcceptsReturn="True" MinLines="4"/>
                 </GroupBox>
                 <Grid DockPanel.Dock="Bottom">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="10*"></ColumnDefinition>
                         <ColumnDefinition Width="10*"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
-                    <Button x:Name="MotorStop_button" Content="电机停止" Background="Red" Grid.Column="0" Padding="3" Margin="5"/>
-                    <Button x:Name="Send_button" Content="发送命令" Grid.Column="1" Padding="3" Margin="5"/>
+                    <Button x:Name="MotorStop_button" Content="电机停止" Background="Red" Grid.Column="0" Padding="3" Margin="5" Click="MotorStop_button_Click"/>
+                    <Button x:Name="Send_button" Content="发送命令" Grid.Column="1" Padding="3" Margin="5" Click="Send_button_Click"/>
                 </Grid>
-                <GroupBox Header="输出信息窗口" DockPanel.Dock="Bottom" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
+                <!--输出信息窗口-->
+                <GroupBox Header="输出信息窗口" Margin="5,5,0,5" DockPanel.Dock="Bottom" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
                     <TextBox Name="Out_textBox" Margin="0" VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" AcceptsReturn="True"/>
+                </GroupBox>
+            </DockPanel>
+            <!--右列面板-->
+            <DockPanel Grid.Column="1">
+                <!--电机参数显示组-->
+                <GroupBox Header="电机参数显示组" DockPanel.Dock="Top" Margin="5,5,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
+                    <DockPanel>
+                        <!--电机1左手0前1后-->
+                        <GroupBox Header="电机1左手0前1后" DockPanel.Dock="Left" Margin="5,0,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
+                            <StackPanel Orientation="Vertical">
+                                <StackPanel Orientation="Horizontal">
+                                    <Label  Content="使能：" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                                    <TextBox x:Name="Motor1_enable_textBox" IsReadOnly="True" HorizontalAlignment="Left" Height="23" Margin="0,2,0,0" VerticalAlignment="Top" Width="80"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <Label Content="方向：" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                                    <TextBox x:Name="Motor1_direction_textBox" IsReadOnly="True" HorizontalAlignment="Left" Height="23" Margin="0,2,0,0" VerticalAlignment="Top" Width="80"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <Label Content="转速：" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                                    <TextBox x:Name="Motor1_speed_textBox" IsReadOnly="True" HorizontalAlignment="Left" Height="23" Margin="0,2,0,0" VerticalAlignment="Top" Width="80"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <Label Content="电流：" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                                    <TextBox x:Name="Motor1_current_textBox" IsReadOnly="True" HorizontalAlignment="Left" Height="23" Margin="0,2,0,0" VerticalAlignment="Top" Width="80"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </GroupBox>
+                        <!--电机2左脚0前1后-->
+                        <GroupBox Header="电机2左脚0前1后" DockPanel.Dock="Left" Margin="5,0,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
+                            <StackPanel Orientation="Vertical">
+                                <StackPanel Orientation="Horizontal">
+                                    <Label  Content="使能：" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                                    <TextBox x:Name="Motor2_enable_textBox" IsReadOnly="True" HorizontalAlignment="Left" Height="23" Margin="0,2,0,0" VerticalAlignment="Top" Width="80"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <Label Content="方向：" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                                    <TextBox x:Name="Motor2_direction_textBox" IsReadOnly="True" HorizontalAlignment="Left" Height="23" Margin="0,2,0,0" VerticalAlignment="Top" Width="80"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <Label Content="转速：" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                                    <TextBox x:Name="Motor2_speed_textBox" IsReadOnly="True" HorizontalAlignment="Left" Height="23" Margin="0,2,0,0" VerticalAlignment="Top" Width="80"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <Label Content="电流：" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                                    <TextBox x:Name="Motor2_current_textBox" IsReadOnly="True" HorizontalAlignment="Left" Height="23" Margin="0,2,0,0" VerticalAlignment="Top" Width="80"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </GroupBox>
+                        <!--电机3右脚0前1后-->
+                        <GroupBox Header="电机3右脚0前1后" DockPanel.Dock="Left" Margin="5,0,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
+                            <StackPanel Orientation="Vertical">
+                                <StackPanel Orientation="Horizontal">
+                                    <Label  Content="使能：" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                                    <TextBox x:Name="Motor3_enable_textBox" IsReadOnly="True" HorizontalAlignment="Left" Height="23" Margin="0,2,0,0" VerticalAlignment="Top" Width="80"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <Label Content="方向：" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                                    <TextBox x:Name="Motor3_direction_textBox" IsReadOnly="True" HorizontalAlignment="Left" Height="23" Margin="0,2,0,0" VerticalAlignment="Top" Width="80"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <Label Content="转速：" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                                    <TextBox x:Name="Motor3_speed_textBox" IsReadOnly="True" HorizontalAlignment="Left" Height="23" Margin="0,2,0,0" VerticalAlignment="Top" Width="80"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <Label Content="电流：" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                                    <TextBox x:Name="Motor3_current_textBox" IsReadOnly="True" HorizontalAlignment="Left" Height="23" Margin="0,2,0,0" VerticalAlignment="Top" Width="80"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </GroupBox>
+                        <!--电机4右手0前1后-->
+                        <GroupBox Header="电机4右手0前1后" DockPanel.Dock="Left" Margin="5,0,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
+                            <StackPanel Orientation="Vertical">
+                                <StackPanel Orientation="Horizontal">
+                                    <Label  Content="使能：" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                                    <TextBox x:Name="Motor4_enable_textBox" IsReadOnly="True" HorizontalAlignment="Left" Height="23" Margin="0,2,0,0" VerticalAlignment="Top" Width="80"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <Label Content="方向：" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                                    <TextBox x:Name="Motor4_direction_textBox" IsReadOnly="True" HorizontalAlignment="Left" Height="23" Margin="0,2,0,0" VerticalAlignment="Top" Width="80"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <Label Content="转速：" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                                    <TextBox x:Name="Motor4_speed_textBox" IsReadOnly="True" HorizontalAlignment="Left" Height="23" Margin="0,2,0,0" VerticalAlignment="Top" Width="80"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <Label Content="电流：" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                                    <TextBox x:Name="Motor4_current_textBox" IsReadOnly="True" HorizontalAlignment="Left" Height="23" Margin="0,2,0,0" VerticalAlignment="Top" Width="80"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </GroupBox>
+                        <!--数据采集-->
+                        <GroupBox Header="数据采集" DockPanel.Dock="Right" Margin="5,0,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
+
+                        </GroupBox>
+                    </DockPanel>
+                </GroupBox>
+                <!--压力传感器信息-->
+                <GroupBox Header="压力传感器信息" DockPanel.Dock="Top" Margin="5,5,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
+                    <DockPanel>
+                        <GroupBox Header="压力传感器1" DockPanel.Dock="Left" Margin="5,0,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
+                            <TextBox x:Name="Pressure1_Textbox" IsReadOnly="True" Height="25" Margin="0,6,1,0"  VerticalAlignment="Top" Text="0" FontSize="15"/>
+                        </GroupBox>
+                        <GroupBox Header="压力传感器2" DockPanel.Dock="Left" Margin="5,0,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
+                            <TextBox x:Name="Pressure2_Textbox" IsReadOnly="True" Height="25" Margin="0,6,1,0"  VerticalAlignment="Top" Text="0" FontSize="15"/>
+                        </GroupBox>
+                        <GroupBox Header="压力传感器3" DockPanel.Dock="Left" Margin="5,0,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
+                            <TextBox x:Name="Pressure3_Textbox" IsReadOnly="True" Height="25" Margin="0,6,1,0"  VerticalAlignment="Top" Text="0" FontSize="15"/>
+                        </GroupBox>
+                        <GroupBox Header="压力传感器4" DockPanel.Dock="Left" Margin="5,0,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
+                            <TextBox x:Name="Pressure4_Textbox" IsReadOnly="True" Height="25" Margin="0,6,1,0"  VerticalAlignment="Top" Text="0" FontSize="15"/>
+                        </GroupBox>
+                        <GroupBox Header="压力传感器5" DockPanel.Dock="Left" Margin="5,0,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
+                            <TextBox x:Name="Pressure5_Textbox" IsReadOnly="True" Height="25" Margin="0,6,1,0"  VerticalAlignment="Top" Text="0" FontSize="15"/>
+                        </GroupBox>
+                        <GroupBox Header="压力传感器6" DockPanel.Dock="Left" Margin="5,0,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
+                            <TextBox x:Name="Pressure6_Textbox" IsReadOnly="True" Height="25" Margin="0,6,1,0"  VerticalAlignment="Top" Text="0" FontSize="15"/>
+                        </GroupBox>
+                        <GroupBox Header="压力传感器7" DockPanel.Dock="Left" Margin="5,0,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
+                            <TextBox x:Name="Pressure7_Textbox" IsReadOnly="True" Height="25" Margin="0,6,1,0"  VerticalAlignment="Top" Text="0" FontSize="15"/>
+                        </GroupBox>
+                        <GroupBox Header="压力传感器8" DockPanel.Dock="Right" Margin="5,0,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
+                            <TextBox x:Name="Pressure8_Textbox" IsReadOnly="True" Height="25" Margin="0,6,1,0"  VerticalAlignment="Top" Text="0" FontSize="15"/>
+                        </GroupBox>
+                    </DockPanel>
+                </GroupBox>
+                <GroupBox Header="倾角传感器信息" DockPanel.Dock="Top" Margin="5,5,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
+                    <DockPanel>
+                        <GroupBox Header="倾角传感器1" DockPanel.Dock="Left" Margin="5,5,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
+                            <StackPanel Orientation="Horizontal" Margin="0">
+                                <StackPanel Orientation="Vertical" Margin="1">
+                                    <Label Content="x轴" Margin="5,0,0,0"/>
+                                    <TextBox x:Name="Dip1_x_TextBox" IsReadOnly="True" Text="0" Margin="10,0,0,0" Width="70"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Vertical" Margin="1">
+                                    <Label Content="y轴" Margin="5,0,0,0"/>
+                                    <TextBox x:Name="Dip1_y_TextBox" IsReadOnly="True" Text="0" Margin="10,0,0,0" Width="70"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </GroupBox>
+                        <GroupBox Header="倾角传感器2" DockPanel.Dock="Left" Margin="5,5,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
+                            <StackPanel Orientation="Horizontal" Margin="0">
+                                <StackPanel Orientation="Vertical" Margin="1">
+                                    <Label Content="x轴" Margin="5,0,0,0"/>
+                                    <TextBox x:Name="Dip2_x_TextBox" IsReadOnly="True" Text="0" Margin="10,0,0,0" Width="70"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Vertical" Margin="1">
+                                    <Label Content="y轴" Margin="5,0,0,0"/>
+                                    <TextBox x:Name="Dip2_y_TextBox" IsReadOnly="True" Text="0" Margin="10,0,0,0" Width="70"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </GroupBox>
+                        <GroupBox Header="倾角传感器3" DockPanel.Dock="Left" Margin="5,5,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
+                            <StackPanel Orientation="Horizontal" Margin="0">
+                                <StackPanel Orientation="Vertical" Margin="1">
+                                    <Label Content="x轴" Margin="5,0,0,0"/>
+                                    <TextBox x:Name="Dip3_x_TextBox" IsReadOnly="True" Text="0" Margin="10,0,0,0" Width="70"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Vertical" Margin="1">
+                                    <Label Content="y轴" Margin="5,0,0,0"/>
+                                    <TextBox x:Name="Dip3_y_TextBox" IsReadOnly="True" Text="0" Margin="10,0,0,0" Width="70"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </GroupBox>
+                        <GroupBox Header="后背陀螺仪" DockPanel.Dock="Left" Margin="5,5,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
+                            <StackPanel Orientation="Horizontal" Margin="0">
+                                <StackPanel Orientation="Vertical" Margin="1">
+                                    <Label Content="x轴" Margin="5,0,0,0"/>
+                                    <TextBox x:Name="Dip4_x_TextBox" IsReadOnly="True" Text="0" Margin="10,0,0,0" Width="70"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Vertical" Margin="1">
+                                    <Label Content="y轴" Margin="5,0,0,0"/>
+                                    <TextBox x:Name="Dip4_y_TextBox" IsReadOnly="True" Text="0" Margin="10,0,0,0" Width="70"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </GroupBox>
+                    </DockPanel>
+                </GroupBox>
+                <GroupBox Header="角度传感器信息" DockPanel.Dock="Top" Margin="5,5,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
+                    <DockPanel>
+                        <GroupBox Header="左手增大" DockPanel.Dock="Left" Margin="5,5,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
+                            <TextBox x:Name="Angle1_Textbox" Width="80" IsReadOnly="True" Height="25" Margin="0,6,1,0"  VerticalAlignment="Top" Text="0" FontSize="15"/>
+                        </GroupBox>
+                        <GroupBox Header="右手减小" DockPanel.Dock="Left" Margin="5,5,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
+                            <TextBox x:Name="Angle2_Textbox" Width="80" IsReadOnly="True" Height="25" Margin="0,6,1,0"  VerticalAlignment="Top" Text="0" FontSize="15"/>
+                        </GroupBox>
+                        <GroupBox Header="左腿增大" DockPanel.Dock="Left" Margin="5,5,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
+                            <TextBox x:Name="Angle3_Textbox" Width="80" IsReadOnly="True" Height="25" Margin="0,6,1,0"  VerticalAlignment="Top" Text="0" FontSize="15"/>
+                        </GroupBox>
+                        <GroupBox Header="右腿减小" DockPanel.Dock="Left" Margin="5,5,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
+                            <TextBox x:Name="Angle4_Textbox" Width="80" IsReadOnly="True" Height="25" Margin="0,6,1,0"  VerticalAlignment="Top" Text="0" FontSize="15"/>
+                        </GroupBox>
+                        <GroupBox Header="角度传感器5" DockPanel.Dock="Left" Margin="5,5,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
+                            <TextBox x:Name="Angle5_Textbox" Width="80" IsReadOnly="True" Height="25" Margin="0,6,1,0"  VerticalAlignment="Top" Text="0" FontSize="15"/>
+                        </GroupBox>
+                        <GroupBox Header="角度传感器6" DockPanel.Dock="Left" Margin="5,5,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
+                            <TextBox x:Name="Angle6_Textbox" Width="80" IsReadOnly="True" Height="25" Margin="0,6,1,0"  VerticalAlignment="Top" Text="0" FontSize="15"/>
+                        </GroupBox>
+                        <Button x:Name="AngleInit_button" DockPanel.Dock="Top" Content="角度初始化"  Margin="0,3,0,0" Width="88" Click="AngleInitializeButton_Click"/>
+                        <Button x:Name="ActionStart_button" DockPanel.Dock="Top" IsEnabled="True" Content="动作开始"  Margin="0,3,0,0" Width="88" Click="ActionStartButton_Click"/>
+                        <Button x:Name="ActionStop_button" DockPanel.Dock="Top" IsEnabled="False" Content="动作停止"  Margin="0,3,0,0" Width="88"   Click="ActionStopButton_Click"/>
+                    </DockPanel>
                 </GroupBox>
             </DockPanel>
         </Grid>

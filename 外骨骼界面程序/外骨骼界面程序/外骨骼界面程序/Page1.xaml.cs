@@ -52,7 +52,7 @@ namespace 外骨骼界面程序
         //private SensorDataMode sdm;
 
 
-
+        #region 以重构
         private void ComboBox1_OnDropDownClosed(object sender, EventArgs e)
         {
             ComboBoxItem item = ComboBox1.SelectedItem as ComboBoxItem;
@@ -129,12 +129,6 @@ namespace 外骨骼界面程序
             }
         }
 
-
-        /// <summary>
-        /// show time
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         public void ShowCurTimer(object sender, EventArgs e)
         {
 
@@ -142,80 +136,6 @@ namespace 外骨骼界面程序
             TextBoxday.Text = nowTime;
             spInt();
         }
-
-        public void ShowSenderTimer(object sender, EventArgs e)
-        {
-            Pressure1.Text = spmManager.tempPress[0].ToString();
-            Pressure2.Text = spmManager.tempPress[1].ToString();
-            Pressure3.Text = spmManager.tempPress[2].ToString();
-            Pressure4.Text = spmManager.tempPress[3].ToString();
-            Pressure5.Text = spmManager.tempPress[4].ToString();
-            Pressure6.Text = spmManager.tempPress[5].ToString();
-            Pressure7.Text = spmManager.tempPress[6].ToString();
-            Pressure8.Text = spmManager.tempPress[7].ToString();
-
-            TextBoxTiltQB1.Text = spmManager.dirangle[0].ToString("F");
-            TextBoxTiltLR1.Text = spmManager.dirangle[1].ToString("F");
-            TextBoxTiltQB2.Text = spmManager.dirangle[2].ToString("F");
-            TextBoxTiltLR2.Text = spmManager.dirangle[3].ToString("F");
-            TextBoxTiltQB3.Text = spmManager.dirangle[4].ToString("F");
-            TextBoxTiltLR3.Text = spmManager.dirangle[5].ToString("F");
-            TextBoxTiltQB4.Text = spmManager.dirangle[6].ToString("F");
-            TextBoxTiltLR4.Text = spmManager.dirangle[7].ToString("F");
-
-            TextBoxAngle1.Text = spmManager._angle[0].ToString("F");
-            TextBoxAngle2.Text = spmManager._angle[1].ToString("F");
-            TextBoxAngle3.Text = spmManager._angle[2].ToString("F");
-            TextBoxAngle4.Text = spmManager._angle[3].ToString("F");
-            TextBoxAngle5.Text = spmManager._angle[4].ToString("F");
-            TextBoxAngle6.Text = spmManager._angle[5].ToString("F");
-
-            TextBoxa1.Text = spmManager.enable[0].ToString();
-            TextBoxa2.Text = spmManager.direction[0].ToString("F");
-            TextBoxa3.Text = spmManager.speed[0].ToString("F");
-            TextBoxa4.Text = spmManager.current[0].ToString("F");
-
-            TextBoxb1.Text = spmManager.enable[1].ToString();
-            TextBoxb2.Text = spmManager.direction[1].ToString("F");
-            TextBoxb3.Text = spmManager.speed[1].ToString("F");
-            TextBoxb4.Text = spmManager.current[1].ToString("F");
-
-            TextBoxc1.Text = spmManager.enable[2].ToString();
-            TextBoxc2.Text = spmManager.direction[2].ToString("F");
-            TextBoxc3.Text = spmManager.speed[2].ToString("F");
-            TextBoxc4.Text = spmManager.current[2].ToString("F");
-
-            TextBoxd1.Text = spmManager.enable[3].ToString();
-            TextBoxd2.Text = spmManager.direction[3].ToString("F");
-            TextBoxd3.Text = spmManager.speed[3].ToString("F");
-            TextBoxd4.Text = spmManager.current[3].ToString("F");
-
-          
-
-
-        }
-
-        private void ButtonIn_OnClick(object sender, RoutedEventArgs e)
-        {
-
-            if (cmdSendBytes != null)
-            {
-                ButtonIn.Content = "正在发送";
-                spmManager.SendcontrolCMD(cmdSendBytes);
-                ButtonIn.Content = "发送";
-                TextBoxOut.Text = "已发送至电机";
-                cmdSendBytes = new byte[19] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-                TextBoxIn.Text = "";
-                choosecount = 0;
-            }
-            else
-            {
-                MessageBox.Show("未给电机添加参数");
-            }
-
-
-        }
-
 
         private void spInt()
         {
@@ -333,8 +253,6 @@ namespace 外骨骼界面程序
 
 
         }
-
-        private byte[] cmdSendBytes = new byte[19];
         private void ButtonAdd_OnClick(object sender, RoutedEventArgs e)
         {
 
@@ -421,6 +339,427 @@ namespace 外骨骼界面程序
             byte[] clearBytes = new byte[19] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
             spmManager.SendcontrolCMD(clearBytes);
         }
+
+        private void ButtonAngleInitialize_OnClick(object sender, RoutedEventArgs e)
+        {
+            ButtonAngleInitialize.Background = new SolidColorBrush(Color.FromArgb(255, 173, 255, 47));
+            spmManager.serialPotr3Int();
+
+            IsTrueForefootZero = true;
+            ButtonAngleInitialize.Content = "初始化已完成";
+        }
+
+        private void beginbutton_Click(object sender, RoutedEventArgs e)
+        {
+            //需要获取角度、倾角、足底压力信息，并实现电机操控
+            //时间触发 为真
+
+
+            beginbutton.Content = "已开始";
+            IsTrueClickDown = true;
+            beginbutton.Background = Brushes.DarkSalmon;
+            stopbutton.Background = Brushes.White;
+
+
+        }
+
+        private void button_Click(object sender, RoutedEventArgs e)
+        {
+            beginbutton.Content = "动作开始";
+            beginbutton.Background = Brushes.White;
+            IsTrueClickDown = false;
+            stopbutton.Background = Brushes.DarkSalmon;
+
+        }
+
+        public void ShowSenderTimer(object sender, EventArgs e)
+        {
+            Pressure1.Text = spmManager.tempPress[0].ToString();
+            Pressure2.Text = spmManager.tempPress[1].ToString();
+            Pressure3.Text = spmManager.tempPress[2].ToString();
+            Pressure4.Text = spmManager.tempPress[3].ToString();
+            Pressure5.Text = spmManager.tempPress[4].ToString();
+            Pressure6.Text = spmManager.tempPress[5].ToString();
+            Pressure7.Text = spmManager.tempPress[6].ToString();
+            Pressure8.Text = spmManager.tempPress[7].ToString();
+
+            TextBoxTiltQB1.Text = spmManager.dirangle[0].ToString("F");
+            TextBoxTiltLR1.Text = spmManager.dirangle[1].ToString("F");
+            TextBoxTiltQB2.Text = spmManager.dirangle[2].ToString("F");
+            TextBoxTiltLR2.Text = spmManager.dirangle[3].ToString("F");
+            TextBoxTiltQB3.Text = spmManager.dirangle[4].ToString("F");
+            TextBoxTiltLR3.Text = spmManager.dirangle[5].ToString("F");
+            TextBoxTiltQB4.Text = spmManager.dirangle[6].ToString("F");
+            TextBoxTiltLR4.Text = spmManager.dirangle[7].ToString("F");
+
+            TextBoxAngle1.Text = spmManager._angle[0].ToString("F");
+            TextBoxAngle2.Text = spmManager._angle[1].ToString("F");
+            TextBoxAngle3.Text = spmManager._angle[2].ToString("F");
+            TextBoxAngle4.Text = spmManager._angle[3].ToString("F");
+            TextBoxAngle5.Text = spmManager._angle[4].ToString("F");
+            TextBoxAngle6.Text = spmManager._angle[5].ToString("F");
+
+            TextBoxa1.Text = spmManager.enable[0].ToString();
+            TextBoxa2.Text = spmManager.direction[0].ToString("F");
+            TextBoxa3.Text = spmManager.speed[0].ToString("F");
+            TextBoxa4.Text = spmManager.current[0].ToString("F");
+
+            TextBoxb1.Text = spmManager.enable[1].ToString();
+            TextBoxb2.Text = spmManager.direction[1].ToString("F");
+            TextBoxb3.Text = spmManager.speed[1].ToString("F");
+            TextBoxb4.Text = spmManager.current[1].ToString("F");
+
+            TextBoxc1.Text = spmManager.enable[2].ToString();
+            TextBoxc2.Text = spmManager.direction[2].ToString("F");
+            TextBoxc3.Text = spmManager.speed[2].ToString("F");
+            TextBoxc4.Text = spmManager.current[2].ToString("F");
+
+            TextBoxd1.Text = spmManager.enable[3].ToString();
+            TextBoxd2.Text = spmManager.direction[3].ToString("F");
+            TextBoxd3.Text = spmManager.speed[3].ToString("F");
+            TextBoxd4.Text = spmManager.current[3].ToString("F");
+
+        }
+
+        public void dongzuo(object sender, EventArgs e)
+        {
+            //检测开始按键是否按下
+            if (IsTrueClickDown)
+            {
+                //初始化已经完成，开始检测状态
+                if (IsTrueForefootZero)
+                {
+                    //下蹲..检测后背倾角变化 腿角度是否为站立  是否起立中
+                    if (!IsTrueStanduping)
+                    {
+
+                        //正在下蹲中
+                        IsTrueSquatting = true;
+                        //如果腿部角度未达到阈值
+                        if (spmManager.dirangle[7] < 75 && (Math.Abs(spmManager._angle[2]) < 7 || Math.Abs(spmManager._angle[3]) < 7))
+                        {
+                            istrueX = true;
+                        }
+                        if (istrueX && (Math.Abs(spmManager._angle[2]) < 60 || Math.Abs(spmManager._angle[3]) < 60))
+                        {
+                            int rSpeed1 = 3600;
+                            int rSpeed2 = 3000;
+
+
+                            byte[] rSpeedBytes1 = BitConverter.GetBytes(rSpeed1);
+                            byte[] rSpeedBytes2 = BitConverter.GetBytes(rSpeed2);
+                            //腿部电机控制
+
+                            if (spmManager._angle[2] > -60)
+                            {
+                                cmdSendBytes[5] = 1;
+                                cmdSendBytes[6] = 1;
+                                cmdSendBytes[7] = rSpeedBytes1[1];
+                                cmdSendBytes[8] = rSpeedBytes1[0];
+                                if (spmManager._angle[2] < -50)
+                                {
+                                    cmdSendBytes[7] = rSpeedBytes2[1];
+                                    cmdSendBytes[8] = rSpeedBytes2[0];
+                                }
+                            }
+                            else
+                            {
+                                cmdSendBytes[5] = 0;
+                                cmdSendBytes[6] = 0;
+                                cmdSendBytes[7] = 0;
+                                cmdSendBytes[8] = 0;
+                            }
+                            if (spmManager._angle[3] < 60)
+                            {
+                                cmdSendBytes[9] = 1;
+                                cmdSendBytes[10] = 0;
+                                cmdSendBytes[11] = rSpeedBytes1[1];
+                                cmdSendBytes[12] = rSpeedBytes1[0];
+                                if (spmManager._angle[3] > 50)
+                                {
+                                    cmdSendBytes[11] = rSpeedBytes2[1];
+                                    cmdSendBytes[12] = rSpeedBytes2[0];
+                                }
+                            }
+                            else
+                            {
+                                cmdSendBytes[9] = 0;
+                                cmdSendBytes[10] = 0;
+                                cmdSendBytes[11] = 0;
+                                cmdSendBytes[12] = 0;
+                            }
+
+
+                            //肘部角度值检测以 确定手部运动
+                            //角度大于阈值（40度） 放下动作  小于阈值 无动作
+                            if (spmManager._angle[0] > 40)
+                            {
+                                cmdSendBytes[1] = 1;
+                                cmdSendBytes[2] = 1;
+                                cmdSendBytes[3] = rSpeedBytes1[1];
+                                cmdSendBytes[4] = rSpeedBytes1[0];
+
+                            }
+                            else
+                            {
+                                if (spmManager._angle[0] > 5)
+                                {
+                                    cmdSendBytes[1] = 1;
+                                    cmdSendBytes[2] = 1;
+                                    cmdSendBytes[3] = rSpeedBytes2[1];
+                                    cmdSendBytes[4] = rSpeedBytes2[0];
+                                }
+                                else
+                                {
+                                    //肘部电机停止 
+                                    cmdSendBytes[1] = 0;
+
+                                }
+
+                            }
+                            if (spmManager._angle[1] < -40)
+                            {
+                                cmdSendBytes[13] = 1;
+                                cmdSendBytes[14] = 0;
+                                cmdSendBytes[15] = rSpeedBytes1[1];
+                                cmdSendBytes[16] = rSpeedBytes1[0];
+                            }
+                            else
+                            {
+                                if (spmManager._angle[1] < -5)
+                                {
+
+                                    cmdSendBytes[13] = 1;
+                                    cmdSendBytes[14] = 0;
+                                    cmdSendBytes[15] = rSpeedBytes2[1];
+                                    cmdSendBytes[16] = rSpeedBytes2[0];
+                                }
+                                else
+                                {
+                                    //肘部电机停止 
+                                    cmdSendBytes[13] = 0;
+                                }
+
+                            }
+
+                        }
+                        else
+                        {
+                            cmdSendBytes[5] = 0;
+                            cmdSendBytes[6] = 0;
+                            cmdSendBytes[7] = 0;
+                            cmdSendBytes[8] = 0;
+                            cmdSendBytes[9] = 0;
+                            cmdSendBytes[10] = 0;
+                            cmdSendBytes[11] = 0;
+                            cmdSendBytes[12] = 0;
+                            //肘部小于阈值
+                            if (spmManager._angle[0] < 5 && spmManager._angle[1] > -5)
+                            {
+                                cmdSendBytes[1] = 0;
+                                cmdSendBytes[2] = 0;
+                                cmdSendBytes[3] = 0;
+                                cmdSendBytes[4] = 0;
+                                cmdSendBytes[13] = 0;
+                                cmdSendBytes[14] = 0;
+                                cmdSendBytes[15] = 0;
+                                cmdSendBytes[16] = 0;
+                                IsTrueSquatting = false;
+                                istrueX = false;
+                            }
+                        }
+
+                        spmManager.SendcontrolCMD(cmdSendBytes);
+
+
+
+                    }
+
+                    //起立 腿部大于阈值 脚底压力和变化 是否在下蹲中
+                    if (!IsTrueSquatting)
+                    {
+                        //起立中
+                        IsTrueStanduping = true;
+                        //判断腿部阈值是否近似于0
+                        //int press = 0;
+                        //for (int i = 0; i < 8; i++)
+                        //{
+                        //    press += spmManager.tempPress[i];
+                        //}
+                        if (spmManager.tempPress[7] > 40)
+                        {
+                            istrueY = true;
+                        }
+                        if (istrueY)
+                        {
+                            int rSpeed1 = 3600;
+                            int rSpeed2 = 3000;
+
+
+                            byte[] rSpeedBytes1 = BitConverter.GetBytes(rSpeed1);
+                            byte[] rSpeedBytes2 = BitConverter.GetBytes(rSpeed2);
+                            //  腿部电机控制
+
+                            if (spmManager._angle[2] < -5)
+                            {
+                                cmdSendBytes[5] = 1;
+                                cmdSendBytes[6] = 0;
+                                cmdSendBytes[7] = rSpeedBytes1[1];
+                                cmdSendBytes[8] = rSpeedBytes1[0];
+                                if (spmManager._angle[2] > -10)
+                                {
+                                    cmdSendBytes[7] = rSpeedBytes2[1];
+                                    cmdSendBytes[8] = rSpeedBytes2[0];
+                                }
+                            }
+                            else
+                            {
+                                cmdSendBytes[5] = 0;
+                            }
+                            if (spmManager._angle[3] > 5)
+                            {
+                                cmdSendBytes[9] = 1;
+                                cmdSendBytes[10] = 1;
+                                cmdSendBytes[11] = rSpeedBytes1[1];
+                                cmdSendBytes[12] = rSpeedBytes1[0];
+                                if (spmManager._angle[3] < 10)
+                                {
+                                    cmdSendBytes[11] = rSpeedBytes2[1];
+                                    cmdSendBytes[12] = rSpeedBytes2[0];
+                                }
+                            }
+                            else
+                            {
+                                cmdSendBytes[9] = 0;
+                            }
+
+                            if (spmManager.tempPress[7] > 200)
+                            {  //肘部角度值检测以 确定手部运动
+                               // 角度大于阈值（10度） 放下动作 小于阈值 无动作
+                                if (spmManager._angle[0] < 50)
+                                {
+                                    cmdSendBytes[1] = 1;
+                                    cmdSendBytes[2] = 0;
+                                    cmdSendBytes[3] = rSpeedBytes1[1];
+                                    cmdSendBytes[4] = rSpeedBytes1[0];
+
+                                }
+                                else
+                                {
+                                    if (spmManager._angle[0] < 60)
+                                    {
+                                        cmdSendBytes[1] = 1;
+                                        cmdSendBytes[2] = 0;
+                                        cmdSendBytes[3] = rSpeedBytes2[1];
+                                        cmdSendBytes[4] = rSpeedBytes2[0];
+                                    }
+                                    else
+                                    {
+                                        //肘部电机停止
+                                        cmdSendBytes[1] = 0;
+                                        cmdSendBytes[2] = 0;
+                                        cmdSendBytes[3] = 0;
+                                        cmdSendBytes[4] = 0;
+                                    }
+
+                                }
+                                if (spmManager._angle[1] > -50)
+                                {
+                                    cmdSendBytes[13] = 1;
+                                    cmdSendBytes[14] = 1;
+                                    cmdSendBytes[15] = rSpeedBytes1[1];
+                                    cmdSendBytes[16] = rSpeedBytes1[0];
+                                }
+                                else
+                                {
+                                    if (spmManager._angle[1] > -60)
+                                    {
+                                        cmdSendBytes[13] = 1;
+                                        cmdSendBytes[14] = 1;
+                                        cmdSendBytes[15] = rSpeedBytes2[1];
+                                        cmdSendBytes[16] = rSpeedBytes2[0];
+                                    }
+                                    else
+                                    {
+                                        // 肘部电机停止
+                                        cmdSendBytes[13] = 0;
+
+                                    }
+
+                                }
+                            }
+                            else
+                            {
+                                cmdSendBytes[1] = 0;
+                                cmdSendBytes[2] = 0;
+                                cmdSendBytes[3] = 0;
+                                cmdSendBytes[4] = 0;
+                                cmdSendBytes[13] = 0;
+                                cmdSendBytes[14] = 0;
+                                cmdSendBytes[15] = 0;
+                                cmdSendBytes[16] = 0;
+                            }
+
+                        }
+                        if (Math.Abs(spmManager._angle[2]) < 5 && Math.Abs(spmManager._angle[3]) < 5)
+                        {
+                            cmdSendBytes[5] = 0;
+                            cmdSendBytes[6] = 0;
+                            cmdSendBytes[7] = 0;
+                            cmdSendBytes[8] = 0;
+                            cmdSendBytes[9] = 0;
+                            cmdSendBytes[10] = 0;
+                            cmdSendBytes[11] = 0;
+                            cmdSendBytes[12] = 0;
+                            if (istrueY && spmManager.tempPress[7] > 200)
+                            {
+                                if (Math.Abs(spmManager._angle[0]) > 60 && Math.Abs(spmManager._angle[1]) > 60)
+                                {
+                                    cmdSendBytes[1] = 0;
+                                    cmdSendBytes[2] = 0;
+                                    cmdSendBytes[3] = 0;
+                                    cmdSendBytes[4] = 0;
+                                    cmdSendBytes[13] = 0;
+                                    cmdSendBytes[14] = 0;
+                                    cmdSendBytes[15] = 0;
+                                    cmdSendBytes[16] = 0;
+                                    IsTrueStanduping = false;
+                                    istrueY = false;
+                                }
+
+                            }
+                            else
+                            {
+                                IsTrueStanduping = false;
+                                istrueY = false;
+                            }
+
+
+                        }
+
+
+                        spmManager.SendcontrolCMD(cmdSendBytes);
+                    }
+                    //  }
+                }
+            }
+        }
+        #endregion
+
+        /// <summary>
+        /// show time
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+
+
+
+
+
+
+
+        private byte[] cmdSendBytes = new byte[19];
+
 
         private void ButtonTrain_OnClick(object sender, RoutedEventArgs e)
         {
@@ -564,14 +903,7 @@ namespace 外骨骼界面程序
             //fs.Close();
         }
 
-        private void ButtonAngleInitialize_OnClick(object sender, RoutedEventArgs e)
-        {
-            ButtonAngleInitialize.Background = new SolidColorBrush(Color.FromArgb(255, 173, 255, 47));
-            spmManager.serialPotr3Int();
 
-            IsTrueForefootZero = true;
-            ButtonAngleInitialize.Content = "初始化已完成";
-        }
 
         private void Hyperlink_OnClick(object sender, RoutedEventArgs e)
         {
@@ -604,28 +936,7 @@ namespace 外骨骼界面程序
             showTimer.Start();
         }
 
-        private void beginbutton_Click(object sender, RoutedEventArgs e)
-        {
-            //需要获取角度、倾角、足底压力信息，并实现电机操控
-            //时间触发 为真
 
-            
-                beginbutton.Content = "已开始";
-                IsTrueClickDown = true;
-                beginbutton.Background = Brushes.DarkSalmon;
-                stopbutton.Background = Brushes.White;
-            
-          
-        }
-
-        private void button_Click(object sender, RoutedEventArgs e)
-        {
-            beginbutton.Content = "动作开始";
-            beginbutton.Background = Brushes.White;
-            IsTrueClickDown = false;
-            stopbutton.Background = Brushes.DarkSalmon;
-
-        }
 
         public bool IsTrueClickDown = false;
         public bool IsTrueForefootZero = false;
@@ -636,329 +947,7 @@ namespace 外骨骼界面程序
         public bool istrueX = false;
         public bool istrueY = false;
         //   public byte[] OleBytes = new byte[19] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-        public void dongzuo(object sender, EventArgs e)
-        {
-            //检测开始按键是否按下
-            if (IsTrueClickDown)
-            {
-                //初始化已经完成，开始检测状态
-                if (IsTrueForefootZero)
-                {
-                    //下蹲..检测后背倾角变化 腿角度是否为站立  是否起立中
-                    if (!IsTrueStanduping)
-                    {
 
-                        //正在下蹲中
-                        IsTrueSquatting = true;
-                        //如果腿部角度未达到阈值
-                        if (spmManager.dirangle[7] < 75 && (Math.Abs(spmManager._angle[2]) < 7 || Math.Abs(spmManager._angle[3]) < 7))
-                        {
-                            istrueX = true;
-                        }
-                       if(istrueX&& (Math.Abs(spmManager._angle[2]) < 60 || Math.Abs(spmManager._angle[3]) < 60))
-                        {
-                            int rSpeed1 = 3600;
-                            int rSpeed2 = 3000;
-
-
-                            byte[] rSpeedBytes1 = BitConverter.GetBytes(rSpeed1);
-                            byte[] rSpeedBytes2 = BitConverter.GetBytes(rSpeed2);
-                            //腿部电机控制
-
-                            if (spmManager._angle[2] >- 60)
-                            {
-                                cmdSendBytes[5] = 1;
-                                cmdSendBytes[6] = 1;
-                                cmdSendBytes[7] = rSpeedBytes1[1];
-                                cmdSendBytes[8] = rSpeedBytes1[0];
-                                if (spmManager._angle[2] <- 50)
-                                {
-                                    cmdSendBytes[7] = rSpeedBytes2[1];
-                                    cmdSendBytes[8] = rSpeedBytes2[0];
-                                }
-                            }
-                            else
-                            {
-                                cmdSendBytes[5] = 0;
-                                cmdSendBytes[6] = 0;
-                                cmdSendBytes[7] = 0;
-                                cmdSendBytes[8] = 0;
-                            }
-                            if (spmManager._angle[3] < 60)
-                            {
-                                cmdSendBytes[9] = 1;
-                                cmdSendBytes[10] = 0;
-                                cmdSendBytes[11] = rSpeedBytes1[1];
-                                cmdSendBytes[12] = rSpeedBytes1[0];
-                                if (spmManager._angle[3] > 50)
-                                {
-                                    cmdSendBytes[11] = rSpeedBytes2[1];
-                                    cmdSendBytes[12] = rSpeedBytes2[0];
-                                }
-                            }
-                            else
-                            {
-                                cmdSendBytes[9] = 0;
-                                cmdSendBytes[10] = 0;
-                                cmdSendBytes[11] = 0;
-                                cmdSendBytes[12] = 0;
-                            }
-
-
-                            //肘部角度值检测以 确定手部运动
-                            //角度大于阈值（40度） 放下动作  小于阈值 无动作
-                            if (spmManager._angle[0] > 40)
-                            {
-                                cmdSendBytes[1] = 1;
-                                cmdSendBytes[2] = 1;
-                                cmdSendBytes[3] = rSpeedBytes1[1];
-                                cmdSendBytes[4] = rSpeedBytes1[0];
-
-                            }
-                            else
-                            {
-                                if (spmManager._angle[0]> 5)
-                                {
-                                    cmdSendBytes[1] = 1;
-                                    cmdSendBytes[2] = 1;
-                                    cmdSendBytes[3] = rSpeedBytes2[1];
-                                    cmdSendBytes[4] = rSpeedBytes2[0];
-                                }
-                                else
-                                {
-                                    //肘部电机停止 
-                                    cmdSendBytes[1] = 0;
-
-                                }
-
-                            }
-                            if (spmManager._angle[1] <- 40)
-                            {
-                                cmdSendBytes[13] = 1;
-                                cmdSendBytes[14] = 0;
-                                cmdSendBytes[15] = rSpeedBytes1[1];
-                                cmdSendBytes[16] = rSpeedBytes1[0];
-                            }
-                            else
-                            {
-                                if (spmManager._angle[1] <- 5)
-                                {
-
-                                    cmdSendBytes[13] = 1;
-                                    cmdSendBytes[14] = 0;
-                                    cmdSendBytes[15] = rSpeedBytes2[1];
-                                    cmdSendBytes[16] = rSpeedBytes2[0];
-                                }
-                                else
-                                {
-                                    //肘部电机停止 
-                                    cmdSendBytes[13] = 0;
-                                }
-
-                            }
-
-                        }
-                        else
-                        {
-                            cmdSendBytes[5] = 0;
-                            cmdSendBytes[6] = 0;
-                            cmdSendBytes[7] = 0;
-                            cmdSendBytes[8] = 0;
-                            cmdSendBytes[9] = 0;
-                            cmdSendBytes[10] = 0;
-                            cmdSendBytes[11] = 0;
-                            cmdSendBytes[12] = 0;
-                            //肘部小于阈值
-                            if (spmManager._angle[0] < 5 && spmManager._angle[1] > -5)
-                            {
-                                cmdSendBytes[1] = 0;
-                                cmdSendBytes[2] = 0;
-                                cmdSendBytes[3] = 0;
-                                cmdSendBytes[4] = 0;
-                                cmdSendBytes[13] = 0;
-                                cmdSendBytes[14] = 0;
-                                cmdSendBytes[15] = 0;
-                                cmdSendBytes[16] = 0;
-                                IsTrueSquatting = false;
-                                istrueX = false;
-                            }
-                        }
-
-                        spmManager.SendcontrolCMD(cmdSendBytes);
-
-
-
-                    }
-
-                    //起立 腿部大于阈值 脚底压力和变化 是否在下蹲中
-                    if (!IsTrueSquatting)
-                    {
-                        //起立中
-                        IsTrueStanduping = true;
-                        //判断腿部阈值是否近似于0
-                        //int press = 0;
-                        //for (int i = 0; i < 8; i++)
-                        //{
-                        //    press += spmManager.tempPress[i];
-                        //}
-                        if (spmManager.tempPress[7] > 40 )
-                        {
-                            istrueY = true;
-                        }
-                        if(istrueY)
-                        {
-                            int rSpeed1 = 3600;
-                            int rSpeed2 = 3000;
-
-
-                            byte[] rSpeedBytes1 = BitConverter.GetBytes(rSpeed1);
-                            byte[] rSpeedBytes2 = BitConverter.GetBytes(rSpeed2);
-                          //  腿部电机控制
-
-                            if (spmManager._angle[2] < -5)
-                            {
-                                cmdSendBytes[5] = 1;
-                                cmdSendBytes[6] = 0;
-                                cmdSendBytes[7] = rSpeedBytes1[1];
-                                cmdSendBytes[8] = rSpeedBytes1[0];
-                                if (spmManager._angle[2] > -10)
-                                {
-                                    cmdSendBytes[7] = rSpeedBytes2[1];
-                                    cmdSendBytes[8] = rSpeedBytes2[0];
-                                }
-                            }
-                            else
-                            {
-                                cmdSendBytes[5] = 0;
-                            }
-                            if (spmManager._angle[3] > 5)
-                            {
-                                cmdSendBytes[9] = 1;
-                                cmdSendBytes[10] = 1;
-                                cmdSendBytes[11] = rSpeedBytes1[1];
-                                cmdSendBytes[12] = rSpeedBytes1[0];
-                                if (spmManager._angle[3] < 10)
-                                {
-                                    cmdSendBytes[11] = rSpeedBytes2[1];
-                                    cmdSendBytes[12] = rSpeedBytes2[0];
-                                }
-                            }
-                            else
-                            {
-                                cmdSendBytes[9] = 0;
-                            }
-
-                            if (spmManager.tempPress[7] > 200)
-                            {  //肘部角度值检测以 确定手部运动
-                               // 角度大于阈值（10度） 放下动作 小于阈值 无动作
-                                if (spmManager._angle[0] < 50)
-                                {
-                                    cmdSendBytes[1] = 1;
-                                    cmdSendBytes[2] = 0;
-                                    cmdSendBytes[3] = rSpeedBytes1[1];
-                                    cmdSendBytes[4] = rSpeedBytes1[0];
-
-                                }
-                                else
-                                {
-                                    if (spmManager._angle[0] < 60)
-                                    {
-                                        cmdSendBytes[1] = 1;
-                                        cmdSendBytes[2] = 0;
-                                        cmdSendBytes[3] = rSpeedBytes2[1];
-                                        cmdSendBytes[4] = rSpeedBytes2[0];
-                                    }
-                                    else
-                                    {
-                                        //肘部电机停止
-                                        cmdSendBytes[1] = 0;
-                                        cmdSendBytes[2] = 0;
-                                        cmdSendBytes[3] = 0;
-                                        cmdSendBytes[4] = 0;
-                                    }
-
-                                }
-                                if (spmManager._angle[1] > -50)
-                                {
-                                    cmdSendBytes[13] = 1;
-                                    cmdSendBytes[14] = 1;
-                                    cmdSendBytes[15] = rSpeedBytes1[1];
-                                    cmdSendBytes[16] = rSpeedBytes1[0];
-                                }
-                                else
-                                {
-                                    if (spmManager._angle[1] > -60)
-                                    {
-                                        cmdSendBytes[13] = 1;
-                                        cmdSendBytes[14] = 1;
-                                        cmdSendBytes[15] = rSpeedBytes2[1];
-                                        cmdSendBytes[16] = rSpeedBytes2[0];
-                                    }
-                                    else
-                                    {
-                                       // 肘部电机停止
-                                        cmdSendBytes[13] = 0;
-
-                                    }
-
-                                }
-                            }
-                            else
-                            {
-                                cmdSendBytes[1] = 0;
-                                cmdSendBytes[2] = 0;
-                                cmdSendBytes[3] = 0;
-                                cmdSendBytes[4] = 0;
-                                cmdSendBytes[13] = 0;
-                                cmdSendBytes[14]= 0;
-                                cmdSendBytes[15] = 0;
-                                cmdSendBytes[16] = 0;
-                            }
-
-                        }
-                        if (Math.Abs(spmManager._angle[2]) < 5 && Math.Abs(spmManager._angle[3]) < 5)
-                        {
-                            cmdSendBytes[5] = 0;
-                            cmdSendBytes[6] = 0;
-                            cmdSendBytes[7] = 0;
-                            cmdSendBytes[8] = 0;
-                            cmdSendBytes[9] = 0;
-                            cmdSendBytes[10] = 0;
-                            cmdSendBytes[11] = 0;
-                            cmdSendBytes[12] = 0;
-                            if (istrueY&&spmManager.tempPress[7] > 200)
-                            {
-                                if (Math.Abs(spmManager._angle[0]) > 60 && Math.Abs(spmManager._angle[1]) > 60)
-                                {
-                                    cmdSendBytes[1] = 0;
-                                    cmdSendBytes[2] = 0;
-                                    cmdSendBytes[3] = 0;
-                                    cmdSendBytes[4] = 0;
-                                    cmdSendBytes[13] = 0;
-                                    cmdSendBytes[14] = 0;
-                                    cmdSendBytes[15] = 0;
-                                    cmdSendBytes[16] = 0;
-                                    IsTrueStanduping = false;
-                                    istrueY = false;
-                                }
-
-                            }
-                            else
-                            {
-                                IsTrueStanduping = false;
-                                istrueY = false;
-                            }
-
-
-                        }
-
-
-                        spmManager.SendcontrolCMD(cmdSendBytes);
-                    }
-                    //  }
-                }
-            }
-        }
 
         
     }

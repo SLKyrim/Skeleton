@@ -482,7 +482,7 @@ namespace 外骨骼界面程序
         }
         public void SendcontrolCMD(byte[] command)
         {
-           // byte[] command = new byte[19];
+            //byte[] command = new byte[19];
             command[0] = 0x23;//开始字符
             //command[1] = 0x01;//电机A 使能端
             //command[2] = 0x01;//电机A 方向
