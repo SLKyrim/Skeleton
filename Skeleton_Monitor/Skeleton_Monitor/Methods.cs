@@ -17,127 +17,89 @@ namespace Skeleton_Monitor
     {
         #region 参数定义
 
-        ////扫描串口
-        //public int comcount = 0;                  //用来存储计算机可用串口数目，初始化为0
-        //public bool flag = false;
+        //串口
+        private SerialPort motor_SerialPort = new SerialPort(); //电机串口
+        private SerialPort press_SerialPort = new SerialPort(); //压力与倾角传感器串口
+        private SerialPort angle_SerialPort = new SerialPort(); //角度传感器串口
+
+        //电机的4个参数
+        public byte[] enable = new byte[4];       //使能
+        public byte[] direction = new byte[4];    //方向
+        public double[] speed = new double[4];    //转速
+        public double[] current = new double[4];   //电流
+
+        //8个压力传感器所需参数（实际只用到1个压力传感器模拟重物，6个压力传感器安装在鞋垫）
+        //4个倾角传感器（分别有x轴和y轴）所需参数（实际只用到1个倾角传感器）
+        public Int16[] tempPress = new Int16[8];   //存储压力AD转换后的值（0-4096）
+        private Int16[] tempAngle = new Int16[8];  //存储倾角AD转换后的值（0-4096）
+        public double[] dirangle = new double[8];  //存储顷角度值（-90°到90°）
+
+        //6个角度传感器所需参数（似乎只用到4个角度传感器）
+        public double[] _angle = new double[6];
+        private double[] _angleInitialization = new double[6];//【角度初始化】按钮也用到
+        private Int16[] tempAngle2 = new Int16[8];//存储倾角AD转换后的值（0-4096）
+
+        //关闭窗口
+        //private DispatcherTimer ShowTimer1;
+
+        //获取可用串口名
+        private string[] IsOpenSerialPortCount = null;
 
         #endregion
 
-        //public void ScanPorts(string[] mySPCount, 
-        //                      ComboBox myMotor_comboBox,
-        //                      ComboBox myPress_comboBox,
-        //                      ComboBox myAngle_comboBox,
-        //                      string mymotor_com,
-        //                      string mypress_com,
-        //                      string myangle_com,
-        //                      TextBox myOut_textBox)//扫描可用串口
-        //{
-        //    mySPCount = SerialPort.GetPortNames();      //获得计算机可用串口名称数组
-        //    ComboBoxItem tempComboBoxItem = new ComboBoxItem();
-        //    if (comcount != mySPCount.Length)            //SPCount.length其实就是可用串口的个数
-        //    {
-        //        //当可用串口计数器与实际可用串口个数不相符时
-        //        //初始化三个下拉窗口并将flag初始化为false
-
-        //        myMotor_comboBox.Items.Clear();
-        //        myPress_comboBox.Items.Clear();
-        //        myAngle_comboBox.Items.Clear();
-
-        //        tempComboBoxItem = new ComboBoxItem();
-        //        tempComboBoxItem.Content = "请选择串口";
-        //        myMotor_comboBox.Items.Add(tempComboBoxItem);
-        //        myMotor_comboBox.SelectedIndex = 0;
-
-        //        tempComboBoxItem = new ComboBoxItem();
-        //        tempComboBoxItem.Content = "请选择串口";
-        //        myPress_comboBox.Items.Add(tempComboBoxItem);
-        //        myPress_comboBox.SelectedIndex = 0;
-
-        //        tempComboBoxItem = new ComboBoxItem();
-        //        tempComboBoxItem.Content = "请选择串口";
-        //        myAngle_comboBox.Items.Add(tempComboBoxItem);
-        //        myAngle_comboBox.SelectedIndex = 0;
-
-        //        mymotor_com = null;
-        //        mypress_com = null;
-        //        myangle_com = null;
-
-        //        flag = false;
-
-        //        if (comcount != 0)
-        //        {
-        //            //在操作过程中增加或减少串口时发生
-        //            MessageBox.Show("串口数目已改变，请重新选择串口");
-        //        }
-
-        //        comcount = mySPCount.Length;     //将可用串口计数器与现在可用串口个数匹配
-        //    }
-
-        //    if (!flag)
-        //    {
-        //        if (mySPCount.Length > 0)
-        //        {
-        //            //有可用串口时执行
-        //            comcount = mySPCount.Length;
-
-        //            myOut_textBox.Text = "检测到" + mySPCount.Length + "个串口!";
-
-        //            for (int i = 0; i < mySPCount.Length; i++)
-        //            {
-        //                //分别将可用串口添加到三个下拉窗口中
-        //                string tempstr = "串口" + mySPCount[i];
-
-        //                tempComboBoxItem = new ComboBoxItem();
-        //                tempComboBoxItem.Content = tempstr;
-        //                myMotor_comboBox.Items.Add(tempComboBoxItem);
-
-        //                tempComboBoxItem = new ComboBoxItem();
-        //                tempComboBoxItem.Content = tempstr;
-        //                myPress_comboBox.Items.Add(tempComboBoxItem);
-
-        //                tempComboBoxItem = new ComboBoxItem();
-        //                tempComboBoxItem.Content = tempstr;
-        //                myAngle_comboBox.Items.Add(tempComboBoxItem);
-        //            }
-
-        //            flag = true;
-
-        //        }
-        //        else
-        //        {
-        //            comcount = 0;
-        //            myOut_textBox.Text = "未检测到串口!";
-        //        }
-        //    }
-        //}
-
-        public void InitPort(SerialPort myPort, string portName)//串口初始化
+        #region 电机
+        public void motor_SerialPort_Init(string comstring)//电机串口初始化
         {
-            myPort = new SerialPort();
-            myPort.PortName = portName;
-            myPort.BaudRate = 115200;
-            myPort.Parity = Parity.None;
-            myPort.StopBits = StopBits.One;
-            myPort.Open();
+            if (motor_SerialPort != null)
+            {
+                if (motor_SerialPort.IsOpen)
+                {
+                    motor_SerialPort.Close();
+                }
+            }
+
+            motor_SerialPort = new SerialPort();
+            motor_SerialPort.PortName = comstring;
+            motor_SerialPort.BaudRate = 115200;
+            motor_SerialPort.Parity = Parity.None;
+            motor_SerialPort.StopBits = StopBits.One;
+            motor_SerialPort.Open();
+            motor_SerialPort.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(motor_DataReceived);
         }
 
-        public void SendAngleCMD(SerialPort myPort)//角度串口写入字节命令
+        private void motor_DataReceived(object sender, SerialDataReceivedEventArgs e)//电机及控制串口接收数据（算法）
         {
-            byte[] command = new byte[9]; //byte类型用于存放二进制数据
-            command[0] = 0x77;            //0x开头的是十六进制数据
-            command[1] = 0x00;
-            command[2] = 0x01;
-            command[3] = 0x01;
-            command[4] = 0x00;
-            command[5] = 0x0E;
-            command[6] = 0x00;
-            command[7] = Convert.ToByte(0xFF - (command[1] + command[2] + command[3] + command[4] + command[5] + command[6]));
-            command[8] = 0xAA;
-
-            myPort.Write(command, 0, 9);
+            try
+            {
+                int bufferlen = motor_SerialPort.BytesToRead;    //先记录下来，避免某种原因，人为的原因，操作几次之间时间长，缓存不一致
+                if (bufferlen >= 27)                             //一个电机有使能，方向，转速，电流4个参数，前两个各占1个位，后两个各占2个位，故一个电机数据占6各位，加上一个开始位，两个停止位，故总有1+6*4+2=27位
+                {
+                    byte[] bytes = new byte[bufferlen];          //声明一个临时数组存储当前来的串口数据
+                    motor_SerialPort.Read(bytes, 0, bufferlen);  //读取串口内部缓冲区数据到buf数组
+                    motor_SerialPort.DiscardInBuffer();          //清空串口内部缓存
+                    //处理和存储数据
+                    Int16 endFlag = BitConverter.ToInt16(bytes, 25);
+                    if (endFlag == 2573)                         //停止位0A0D (0D0A?)
+                    {
+                        if (bytes[0] == 0x23)
+                            for (int f = 0; f < 4; f++)
+                            {
+                                enable[f] = bytes[f * 6 + 1];
+                                direction[f] = bytes[f * 6 + 2];
+                                speed[f] = bytes[f * 6 + 3] * 256 + bytes[f * 6 + 4];
+                                if (speed[f] >= 2048) speed[f] = (speed[f] - 2048) / 4096 * 5180;          //实际范围-2590~2590,而对应范围是0~4096，故中间值位2048
+                                else speed[f] = (2048 - speed[f]) / 4096 * -5180;
+                                current[f] = bytes[f * 6 + 5] * 256 + bytes[f * 6 + 6];
+                                if (current[f] >= 2048) current[f] = (current[f] - 2048) / 4096 * 30;
+                                else current[f] = (2048 - current[f]) / 4096 * -30;
+                            }
+                    }
+                }
+            }
+            catch { }
         }
 
-        public void SendControlCMD(SerialPort myPort, byte[] command)//电机串口写入字节命令
+        public void SendControlCMD(byte[] command)//电机串口写入字节命令
         {
             //byte[] command = new byte[19];
             command[0] = 0x23;//开始字符
@@ -159,8 +121,159 @@ namespace Skeleton_Monitor
             //command[16] = 0x88;//电机D
             command[17] = 0x0D;//结束字符
             command[18] = 0x0A;
-            myPort.Write(command, 0, 19);
+            motor_SerialPort.Write(command, 0, 19);
+        }
+        #endregion
+
+        #region 压力与倾角传感器
+        public void press_SerialPort_Init(string comstring)//压力与倾角传感器串口初始化
+        {
+            if (press_SerialPort != null)
+            {
+                if (press_SerialPort.IsOpen)
+                {
+                    press_SerialPort.Close();
+                }
+            }
+
+            press_SerialPort = new SerialPort();
+            press_SerialPort.PortName = comstring;
+            press_SerialPort.BaudRate = 115200;
+            press_SerialPort.Parity = Parity.None;
+            press_SerialPort.StopBits = StopBits.One;
+            press_SerialPort.Open();
+            press_SerialPort.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(press_DataReceived);
         }
 
+        public void press_DataReceived(object sender, SerialDataReceivedEventArgs e)//接受压力相关数据的委托事件（算法）
+        {
+            int bufferlen = press_SerialPort.BytesToRead;//先记录下来，避免某种原因，人为的原因，操作几次之间时间长，缓存不一致
+            if (bufferlen >= 34)                   //前16位储存8个压力值，后16位储存8个倾角值，最后2位是停止位
+            {
+                byte[] bytes = new byte[bufferlen];//声明一个临时数组存储当前来的串口数据
+                press_SerialPort.Read(bytes, 0, bufferlen);//读取串口内部缓冲区数据到buf数组
+                press_SerialPort.DiscardInBuffer();//清空串口内部缓存
+                                                   //处理和存储数据
+                Int16 endFlag = BitConverter.ToInt16(bytes, 32);
+                if (endFlag == 2573)
+                {
+                    for (int f = 0; f < 8; f++)
+                    {
+                        tempPress[f] = BitConverter.ToInt16(bytes, f * 2);    //byte是8位，tempPress是Int16，即16位，所以一个Int16占byte数组两个位   
+                        tempAngle[f] = BitConverter.ToInt16(bytes, f * 2 + 16);
+                        dirangle[f] = (Convert.ToDouble(tempAngle[f]) * (3.3 / 4096) - 0.7444) / 1.5 * 180;
+                    }
+                }
+            }
+        }
+        #endregion
+
+        #region 角度传感器
+        public void angle_SerialPort_Init(string comstring)//角度传感器串口初始化
+        {
+            if (angle_SerialPort != null)
+            {
+                if (angle_SerialPort.IsOpen)
+                {
+                    angle_SerialPort.Close();
+                }
+            }
+
+            angle_SerialPort = new SerialPort();
+            angle_SerialPort.PortName = comstring;
+            angle_SerialPort.BaudRate = 115200;
+            angle_SerialPort.Parity = Parity.None;
+            angle_SerialPort.StopBits = StopBits.One;
+            angle_SerialPort.Open();
+           
+            angle_SerialPort.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(angle_DataReceived);
+
+            SendAngleCMD();
+        }
+
+        private void angle_DataReceived(object sender, SerialDataReceivedEventArgs e)//对角度传感器串口增加的委托事件（算法）
+        {
+            int bufferlen = angle_SerialPort.BytesToRead;//先记录下来，避免某种原因，人为的原因，操作几次之间时间长，缓存不一致
+            if (bufferlen >= 34)
+            {
+                byte[] bytes = new byte[bufferlen];//声明一个临时数组存储当前来的串口数据
+                angle_SerialPort.Read(bytes, 0, bufferlen);//读取串口内部缓冲区数据到buf数组
+                angle_SerialPort.DiscardInBuffer();//清空串口内部缓存
+                                                   //处理和存储数据
+                Int16 endFlag = BitConverter.ToInt16(bytes, 32);
+                if (endFlag == 2573)
+                {
+                    for (int f = 0; f < 4; f++)
+                    {
+                        tempAngle2[f] = BitConverter.ToInt16(bytes, f * 2 + 16);
+                        _angle[f] = Convert.ToDouble(tempAngle2[f]) / 4096 * 3.3 / 3.05 * 360;
+                    }
+                    for (int i = 0; i < 4; i++)
+                    {
+                        _angle[i] = _angle[i] - _angleInitialization[i];
+                    }
+                }
+            }
+        }
+
+        public void SendAngleCMD()//角度串口写入字节命令
+        {
+            byte[] command = new byte[9]; //byte类型用于存放二进制数据
+            command[0] = 0x77;            //0x开头的是十六进制数据
+            command[1] = 0x00;
+            command[2] = 0x01;
+            command[3] = 0x01;
+            command[4] = 0x00;
+            command[5] = 0x0E;
+            command[6] = 0x00;
+            command[7] = Convert.ToByte(0xFF - (command[1] + command[2] + command[3] + command[4] + command[5] + command[6]));
+            command[8] = 0xAA;
+
+            angle_SerialPort.Write(command, 0, 9);
+        }
+
+        public void AngleInit()//角度初始化
+        {
+            for (int i = 0; i < 6; i++)
+                _angleInitialization[i] = 0;
+
+            int numberOfGather = 5;
+            for (int i = 0; i < numberOfGather; i++)
+            {
+                for (int j = 0; j < 6; j++)
+                    _angleInitialization[j] += _angle[j];
+            }
+            for (int i = 0; i < 6; i++)
+                _angleInitialization[i] /= numberOfGather;
+        }
+        #endregion
+
+        public string[] CheckSerialPortCount()//获取可用串口名
+        {
+            IsOpenSerialPortCount = SerialPort.GetPortNames();
+            return IsOpenSerialPortCount;
+        }
+
+        public bool SerialPortClose()//关闭窗口时执行
+        {
+            if (motor_SerialPort != null)
+            {
+                motor_SerialPort.DataReceived -= new System.IO.Ports.SerialDataReceivedEventHandler(motor_DataReceived);
+
+                motor_SerialPort.Close();
+            }
+            if (press_SerialPort != null)
+            {
+                press_SerialPort.DataReceived -= new System.IO.Ports.SerialDataReceivedEventHandler(press_DataReceived);
+                press_SerialPort.Close();
+            }
+            if (angle_SerialPort != null)
+            {
+                angle_SerialPort.DataReceived -= new System.IO.Ports.SerialDataReceivedEventHandler(angle_DataReceived);
+                //ShowTimer1.Stop();
+                angle_SerialPort.Close();
+            }
+            return true;
+        }
     }
 }

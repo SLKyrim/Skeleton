@@ -23,9 +23,15 @@ namespace Skeleton_Monitor
     /// </summary>
     public partial class MainWindow : Window
     {
+        Methods methods = new Methods();
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private void MainWindow_OnClosed(object sender, EventArgs e)
+        {
+            methods.SerialPortClose();
         }
 
         private void Frame_Navigated(object sender, NavigationEventArgs e)
