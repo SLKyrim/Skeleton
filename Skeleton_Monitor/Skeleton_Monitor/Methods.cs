@@ -34,8 +34,8 @@ namespace Skeleton_Monitor
         private Int16[] tempAngle = new Int16[8];  //存储倾角AD转换后的值（0-4096）
         public double[] dirangle = new double[8];  //存储顷角度值（-90°到90°）
 
-        //6个角度传感器所需参数（似乎只用到4个角度传感器）
-        public double[] _angle = new double[6];
+        //6个角度传感器所需参数（只用到4个角度传感器）
+        public double[] _angle = new double[6];//存储角度值（0°到 ?°)；只用到前4个
         private double[] _angleInitialization = new double[6];//【角度初始化】按钮也用到
         private Int16[] tempAngle2 = new Int16[8];//存储倾角AD转换后的值（0-4096）
 
@@ -103,22 +103,22 @@ namespace Skeleton_Monitor
         {
             //byte[] command = new byte[19];
             command[0] = 0x23;//开始字符
-            //command[1] = 0x01;//电机A 使能端
-            //command[2] = 0x01;//电机A 方向
-            //command[3] = 0x08;//电机A 转速高位
-            //command[4] = 0x88;//电机A 转速低位（范围1800-16200）对应速度范围（0-2590r/min）
-            //command[5] = 0x01;//电机B
-            //command[6] = 0x01;//电机B
-            //command[7] = 0x08;//电机B
-            //command[8] = 0x88;//电机B
-            //command[9] = 0x01;//电机C
-            //command[10] = 0x01;//电机C
-            //command[11] = 0x08;//电机C
-            //command[12] = 0x88;//电机C
-            //command[13] = 0x01;//电机D
-            //command[14] = 0x01;//电机D
-            //command[15] = 0x08;//电机D
-            //command[16] = 0x88;//电机D
+            //command[1] = 0x01;//电机1 使能端
+            //command[2] = 0x01;//电机1 方向
+            //command[3] = 0x08;//电机1 转速高位
+            //command[4] = 0x88;//电机1 转速低位（范围1800-16200）对应速度范围（0-2590r/min）
+            //command[5] = 0x01;//电机2
+            //command[6] = 0x01;//电机2
+            //command[7] = 0x08;//电机2
+            //command[8] = 0x88;//电机2
+            //command[9] = 0x01;//电机3
+            //command[10] = 0x01;//电机3
+            //command[11] = 0x08;//电机3
+            //command[12] = 0x88;//电机3
+            //command[13] = 0x01;//电机4
+            //command[14] = 0x01;//电机4
+            //command[15] = 0x08;//电机4
+            //command[16] = 0x88;//电机4
             command[17] = 0x0D;//结束字符
             command[18] = 0x0A;
             motor_SerialPort.Write(command, 0, 19);
@@ -204,13 +204,13 @@ namespace Skeleton_Monitor
                 if (endFlag == 2573)
                 {
                     for (int f = 0; f < 4; f++)
-                    {
-                        tempAngle2[f] = BitConverter.ToInt16(bytes, f * 2 + 16);
-                        _angle[f] = Convert.ToDouble(tempAngle2[f]) / 4096 * 3.3 / 3.05 * 360;
+                    { 
+                        tempAngle2[f] = BitConverter.ToInt16(bytes, f * 2 + 16);              //用到的4个角度传感器的值看来是存放在bytes[16]到bytes[23]这个8个位上
+                        _angle[f] = Convert.ToDouble(tempAngle2[f]) / 4096 * 3.3 / 3.05 * 360;//从AD值转化为对应角度值
                     }
                     for (int i = 0; i < 4; i++)
                     {
-                        _angle[i] = _angle[i] - _angleInitialization[i];
+                        _angle[i] = _angle[i] - _angleInitialization[i]; //减去初始角度误差值得到动作时的真实初始角度
                     }
                 }
             }
@@ -237,7 +237,8 @@ namespace Skeleton_Monitor
             for (int i = 0; i < 6; i++)
                 _angleInitialization[i] = 0;
 
-            int numberOfGather = 5;
+            int numberOfGather = 5;  //_angleInitialization[j]加五次实际实时角度值_angle[j]，再除以5得角度初始误差值_angleInitialization[i]
+
             for (int i = 0; i < numberOfGather; i++)
             {
                 for (int j = 0; j < 6; j++)

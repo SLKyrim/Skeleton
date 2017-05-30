@@ -178,7 +178,7 @@ namespace Skeleton_Monitor
 
             DispatcherTimer showTimer = new DispatcherTimer();
             showTimer.Tick += new EventHandler(ShowSenderTimer); //增加了一个叫ShowSenderTimer的在电机和传感器的只读文本框中输出信息的委托
-            showTimer.Tick += new EventHandler(Action);
+            showTimer.Tick += new EventHandler(Action);          
             showTimer.Interval = new TimeSpan(0, 0, 0, 0, 100);  //文本变化间隔是??毫秒(并不准确)
             showTimer.Start();
         }
@@ -416,15 +416,32 @@ namespace Skeleton_Monitor
         private void MotorStop_button_Click(object sender, RoutedEventArgs e)//点击【电机停止】按钮时执行
         {
             byte[] clearBytes = new byte[19] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-            methods.SendControlCMD(clearBytes);
+            try
+            {
+                methods.SendControlCMD(clearBytes);
+            }
+            catch
+            {
+                MessageBox.Show("未正确选择电机串口!");
+            }
+            
         }
 
         private void Send_button_Click(object sender, RoutedEventArgs e)//点击【发送命令】按钮时执行
         {
             if (cmdSendBytes != null)
             {
-                Send_button.Content = "正在发送...";                    //改变发送命令按钮的文本为“正在发送...”，表示正在给电机串口写入字节命令  
-                methods.SendControlCMD(cmdSendBytes);                           //给电机串口写入字节命令
+                Send_button.Content = "正在发送...";                    //改变发送命令按钮的文本为“正在发送...”，表示正在给电机串口写入字节命令
+
+                try
+                {
+                    methods.SendControlCMD(cmdSendBytes);                           //给电机串口写入字节命令
+                }
+                catch
+                {
+                    MessageBox.Show("未正确选择电机串口!");
+                }
+
                 Send_button.Content = "发送命令";                       //命令发送完毕后按钮文本变回来
                 Out_textBox.Text = "已发送至电机";                      //【输出信息窗口】显示“已发送至电机”
                 cmdSendBytes = new byte[19] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };//重置字节命令存储器cmdSendBytes
@@ -471,26 +488,29 @@ namespace Skeleton_Monitor
         }
         #endregion
 
-        public void Action(object sender, EventArgs e)//动作
+        public void Action(object sender, EventArgs e)//雪松版动作
         {
-            //检测开始按键是否按下
+            //动作流程说明：背往前倾准备下蹲 --> 双腿弯曲下蹲 --> 长按压力传感器8(模拟拿重物），双腿伸直起立同时双手弯曲 -->
+            //              背往前倾准备下蹲 --> 双腿弯曲下蹲同时双手伸直（放下重物） --> 按一下压力传感器8，双腿伸直起立
+
+            //检测【动作开始】按扭是否按下
             if (IsTrueClickDown)
             {
-                //初始化已经完成，开始检测状态
+                //检测【角度初始化】按扭是否按下
                 if (IsTrueForefootZero)
                 {
-                    //下蹲..检测后背倾角变化 腿角度是否为站立  是否起立中
+                    //下蹲动作执行..条件：检测后背倾角变化；非站立；非起立中
                     if (!IsTrueStanduping)
                     {
 
-                        //正在下蹲中
-                        IsTrueSquatting = true;
+                        IsTrueSquatting = true; //正在下蹲中
+
                         //如果腿部角度未达到阈值
-                        if (methods.dirangle[7] < 75 && (Math.Abs(methods._angle[2]) < 7 || Math.Abs(methods._angle[3]) < 7))
+                        if (methods.dirangle[7] < 75 && (Math.Abs(methods._angle[2]) < 7 || Math.Abs(methods._angle[3]) < 7))//后背陀螺仪y轴小于75°(初始是90°摆放)；左腿和右腿角度传感器小于7°（说明角度初始化完成）时执行
                         {
                             istrueX = true;
                         }
-                        if (istrueX && (Math.Abs(methods._angle[2]) < 60 || Math.Abs(methods._angle[3]) < 60))
+                        if (istrueX && (Math.Abs(methods._angle[2]) < 60 || Math.Abs(methods._angle[3]) < 60))//初始化完成且左腿和右腿没转到60°时执行
                         {
                             int rSpeed1 = 3600;
                             int rSpeed2 = 3000;
@@ -500,38 +520,38 @@ namespace Skeleton_Monitor
                             byte[] rSpeedBytes2 = BitConverter.GetBytes(rSpeed2);
                             //腿部电机控制
 
-                            if (methods._angle[2] > -60)
+                            if (methods._angle[2] > -60)//左腿电机2控制
                             {
-                                cmdSendBytes[5] = 1;
-                                cmdSendBytes[6] = 1;
-                                cmdSendBytes[7] = rSpeedBytes1[1];
-                                cmdSendBytes[8] = rSpeedBytes1[0];
-                                if (methods._angle[2] < -50)
+                                cmdSendBytes[5] = 1;//电机2使能
+                                cmdSendBytes[6] = 1;//电机2方向
+                                cmdSendBytes[7] = rSpeedBytes1[1];//电机2转速高位
+                                cmdSendBytes[8] = rSpeedBytes1[0];//电机2转速地位 (范围1800-16200）对应速度范围（0-2590r/min）
+                                if (methods._angle[2] < -50)//左腿电机快转到位时电机降速至3000
                                 {
                                     cmdSendBytes[7] = rSpeedBytes2[1];
                                     cmdSendBytes[8] = rSpeedBytes2[0];
                                 }
                             }
-                            else
+                            else//左腿已转到位，电机2停止
                             {
                                 cmdSendBytes[5] = 0;
                                 cmdSendBytes[6] = 0;
                                 cmdSendBytes[7] = 0;
                                 cmdSendBytes[8] = 0;
                             }
-                            if (methods._angle[3] < 60)
+                            if (methods._angle[3] < 60)//右腿电机3控制
                             {
-                                cmdSendBytes[9] = 1;
-                                cmdSendBytes[10] = 0;
-                                cmdSendBytes[11] = rSpeedBytes1[1];
-                                cmdSendBytes[12] = rSpeedBytes1[0];
-                                if (methods._angle[3] > 50)
+                                cmdSendBytes[9] = 1; //电机3使能
+                                cmdSendBytes[10] = 0;//电机3方向
+                                cmdSendBytes[11] = rSpeedBytes1[1];//电机3转速高位
+                                cmdSendBytes[12] = rSpeedBytes1[0];//电机3转速地位 (范围1800-16200）对应速度范围（0-2590r/min）
+                                if (methods._angle[3] > 50)//右腿电机快转到位时电机降速至3000
                                 {
                                     cmdSendBytes[11] = rSpeedBytes2[1];
                                     cmdSendBytes[12] = rSpeedBytes2[0];
                                 }
                             }
-                            else
+                            else//右腿已转到位，电机3停止
                             {
                                 cmdSendBytes[9] = 0;
                                 cmdSendBytes[10] = 0;
@@ -541,8 +561,8 @@ namespace Skeleton_Monitor
 
 
                             //肘部角度值检测以 确定手部运动
-                            //角度大于阈值（40度） 放下动作  小于阈值 无动作
-                            if (methods._angle[0] > 40)
+                            //角度大于阈值（40度） 模拟放下重物动作（即伸直） 小于阈值 无动作
+                            if (methods._angle[0] > 40)//左手弯曲时执行
                             {
                                 cmdSendBytes[1] = 1;
                                 cmdSendBytes[2] = 1;
@@ -559,7 +579,7 @@ namespace Skeleton_Monitor
                                     cmdSendBytes[3] = rSpeedBytes2[1];
                                     cmdSendBytes[4] = rSpeedBytes2[0];
                                 }
-                                else
+                                else//肘部关节小于5°时即停止电机
                                 {
                                     //肘部电机停止 
                                     cmdSendBytes[1] = 0;
@@ -593,8 +613,9 @@ namespace Skeleton_Monitor
                             }
 
                         }
-                        else
+                        else//腿部角度传感器已弯曲大于60°或角度传感器未初始化时执行
                         {
+                            //双腿电机不工作
                             cmdSendBytes[5] = 0;
                             cmdSendBytes[6] = 0;
                             cmdSendBytes[7] = 0;
@@ -604,7 +625,7 @@ namespace Skeleton_Monitor
                             cmdSendBytes[11] = 0;
                             cmdSendBytes[12] = 0;
                             //肘部小于阈值
-                            if (methods._angle[0] < 5 && methods._angle[1] > -5)
+                            if (methods._angle[0] < 5 && methods._angle[1] > -5)//若肘部关节比腿部关节到位慢，这里需要一个安全保证肘部到位时会停下来并指示蹲下动作完成
                             {
                                 cmdSendBytes[1] = 0;
                                 cmdSendBytes[2] = 0;
@@ -614,15 +635,26 @@ namespace Skeleton_Monitor
                                 cmdSendBytes[14] = 0;
                                 cmdSendBytes[15] = 0;
                                 cmdSendBytes[16] = 0;
-                                IsTrueSquatting = false;
+                                IsTrueSquatting = false; //蹲下动作完成
                                 istrueX = false;
                             }
                         }
 
-                        methods.SendControlCMD(cmdSendBytes);
+                        try
+                        {
+                            methods.SendControlCMD(cmdSendBytes);
+                        }
+                       catch
+                        {
+                            MessageBox.Show("未正确选择电机串口!");
+                            IsTrueClickDown = false;
+                            ActionStart_button.Content = "动作开始";
+                            ActionStart_button.IsEnabled = true;
+                            ActionStop_button.IsEnabled = false;
+                        }
                     }
 
-                    //起立 腿部大于阈值 脚底压力和变化 是否在下蹲中
+                    //起立动作执行..条件：腿部大于阈值；脚底压力和变化；是否在下蹲中
                     if (!IsTrueSquatting)
                     {
                         //起立中
@@ -633,7 +665,7 @@ namespace Skeleton_Monitor
                         //{
                         //    press += spmManager.tempPress[i];
                         //}
-                        if (methods.tempPress[7] > 40)
+                        if (methods.tempPress[7] > 40)//达到压力传感器8的阈值
                         {
                             istrueY = true;
                         }
@@ -647,7 +679,7 @@ namespace Skeleton_Monitor
                             byte[] rSpeedBytes2 = BitConverter.GetBytes(rSpeed2);
                             //  腿部电机控制
 
-                            if (methods._angle[2] < -5)
+                            if (methods._angle[2] < -5)//腿部伸直
                             {
                                 cmdSendBytes[5] = 1;
                                 cmdSendBytes[6] = 0;
@@ -663,7 +695,7 @@ namespace Skeleton_Monitor
                             {
                                 cmdSendBytes[5] = 0;
                             }
-                            if (methods._angle[3] > 5)
+                            if (methods._angle[3] > 5)//腿部伸直
                             {
                                 cmdSendBytes[9] = 1;
                                 cmdSendBytes[10] = 1;
@@ -682,8 +714,8 @@ namespace Skeleton_Monitor
 
                             if (methods.tempPress[7] > 200)
                             {  //肘部角度值检测以 确定手部运动
-                               // 角度大于阈值（10度） 放下动作 小于阈值 无动作
-                                if (methods._angle[0] < 50)
+                               // 角度大于阈值（10度） 模拟拿起重物动作 小于阈值 无动作
+                                if (methods._angle[0] < 50)//肘部弯曲
                                 {
                                     cmdSendBytes[1] = 1;
                                     cmdSendBytes[2] = 0;
@@ -710,7 +742,7 @@ namespace Skeleton_Monitor
                                     }
 
                                 }
-                                if (methods._angle[1] > -50)
+                                if (methods._angle[1] > -50)//肘部弯曲
                                 {
                                     cmdSendBytes[13] = 1;
                                     cmdSendBytes[14] = 1;
@@ -748,7 +780,7 @@ namespace Skeleton_Monitor
                             }
 
                         }
-                        if (Math.Abs(methods._angle[2]) < 5 && Math.Abs(methods._angle[3]) < 5)
+                        if (Math.Abs(methods._angle[2]) < 5 && Math.Abs(methods._angle[3]) < 5)//腿已伸直时
                         {
                             cmdSendBytes[5] = 0;
                             cmdSendBytes[6] = 0;
@@ -770,21 +802,34 @@ namespace Skeleton_Monitor
                                     cmdSendBytes[14] = 0;
                                     cmdSendBytes[15] = 0;
                                     cmdSendBytes[16] = 0;
-                                    IsTrueStanduping = false;
+                                    IsTrueStanduping = false;//拿重物起立动作完成
                                     istrueY = false;
                                 }
 
                             }
                             else
                             {
-                                IsTrueStanduping = false;
+                                IsTrueStanduping = false;//直接起来动作完成
                                 istrueY = false;
                             }
                         }
-                        methods.SendControlCMD(cmdSendBytes);
+
+                        try
+                        {
+                            methods.SendControlCMD(cmdSendBytes);
+                        }
+                        catch
+                        {
+                            MessageBox.Show("未正确选择电机串口!");
+                            IsTrueClickDown = false;
+                            ActionStart_button.Content = "动作开始";
+                            ActionStart_button.IsEnabled = true;
+                            ActionStop_button.IsEnabled = false;
+                        }
                     }
                 }
             }
         }
+
     }
 }
