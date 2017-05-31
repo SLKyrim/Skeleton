@@ -22,10 +22,10 @@ namespace Skeleton_Monitor
         private SerialPort press_SerialPort = new SerialPort(); //压力与倾角传感器串口
         private SerialPort angle_SerialPort = new SerialPort(); //角度传感器串口
 
-        //电机的4个参数
-        public byte[] enable = new byte[4];       //使能
-        public byte[] direction = new byte[4];    //方向
-        public double[] speed = new double[4];    //转速
+        //电机的4个参数 
+        public byte[] enable = new byte[4];        //使能
+        public byte[] direction = new byte[4];     //方向
+        public double[] speed = new double[4];     //转速
         public double[] current = new double[4];   //电流
 
         //8个压力传感器所需参数（实际只用到1个压力传感器模拟重物，6个压力传感器安装在鞋垫）
@@ -36,7 +36,7 @@ namespace Skeleton_Monitor
 
         //6个角度传感器所需参数（只用到4个角度传感器）
         public double[] _angle = new double[6];//存储角度值（0°到 ?°)；只用到前4个
-        private double[] _angleInitialization = new double[6];//【角度初始化】按钮也用到
+        public double[] _angleInitialization = new double[6] { 0, 0, 0, 0, 0, 0 };//【角度初始化】按钮也用到
         private Int16[] tempAngle2 = new Int16[8];//存储倾角AD转换后的值（0-4096）
         private double[] auxiliary_angle = new double[6];//初始角度的补角：角度传感器初始值在290°以上时，为防止转到360°后角度突变为0°，需要用到
 

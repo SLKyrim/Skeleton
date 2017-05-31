@@ -97,7 +97,7 @@
                         <ColumnDefinition Width="10*"></ColumnDefinition>
                         <ColumnDefinition Width="10*"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
-                    <Button x:Name="MotorStop_button" Content="电机停止" Background="Red" Grid.Column="0" Padding="3" Margin="5" Click="MotorStop_button_Click"/>
+                    <Button x:Name="MotorStop_button" Content="电机停止" Background="#FFE62323" Grid.Column="0" Padding="3" Margin="5" Click="MotorStop_button_Click"/>
                     <Button x:Name="Send_button" Content="发送命令" Grid.Column="1" Padding="3" Margin="5" Click="Send_button_Click"/>
                 </Grid>
                 <!--输出信息窗口-->

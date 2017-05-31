@@ -80,7 +80,10 @@ namespace Skeleton_Monitor
                     if (press_com == SPCount[i] || angle_com == SPCount[i])
                     {
                         //压力与倾角传感器或角度传感器已占用串口SPCount[i]时
-                        MessageBox.Show("串口" + SPCount[i] + "已被占用!");
+                        //MessageBox.Show("串口" + SPCount[i] + "已被占用!");
+                        Out_textBox.Text = "串口" + SPCount[i] + "已被占用!";
+                        statusBar.Background = new SolidColorBrush(Color.FromArgb(255, 230, 20, 20));
+                        statusInfoTextBlock.Text = "串口" + SPCount[i] + "已被占用!";
                     }
                     else
                     {
@@ -112,7 +115,10 @@ namespace Skeleton_Monitor
                     if (motor_com == SPCount[i] || angle_com == SPCount[i])
                     {
                         //电机或角度传感器已占用串口SPCount[i]时
-                        MessageBox.Show("串口" + SPCount[i] + "已被占用!");
+                        //MessageBox.Show("串口" + SPCount[i] + "已被占用!");
+                        Out_textBox.Text = "串口" + SPCount[i] + "已被占用!";
+                        statusBar.Background = new SolidColorBrush(Color.FromArgb(255, 230, 20, 20));
+                        statusInfoTextBlock.Text = "串口" + SPCount[i] + "已被占用!";
                     }
                     else
                     {
@@ -145,7 +151,10 @@ namespace Skeleton_Monitor
                     if (motor_com == SPCount[i] || press_com == SPCount[i])
                     {
                         //电机或压力与倾角传感器已占用串口SPCount[i]时
-                        MessageBox.Show("串口" + SPCount[i] + "已被占用!");
+                        //MessageBox.Show("串口" + SPCount[i] + "已被占用!");
+                        Out_textBox.Text = "串口" + SPCount[i] + "已被占用!";
+                        statusBar.Background = new SolidColorBrush(Color.FromArgb(255, 230, 20, 20));
+                        statusInfoTextBlock.Text = "串口" + SPCount[i] + "已被占用!";
                     }
                     else
                     {
@@ -346,19 +355,43 @@ namespace Skeleton_Monitor
             int add_motorNum = Convert.ToInt16(MotorControl_motorNum_textBox.Text);
 
             if (add_motorNum != 1 && add_motorNum != 2 && add_motorNum != 3 && add_motorNum != 4)
-                MessageBox.Show("选择电机号请输入1或2或3或4");
+            {
+                //MessageBox.Show("选择电机号请输入1或2或3或4");
+                statusBar.Background = new SolidColorBrush(Color.FromArgb(255, 230, 20, 20));
+                statusInfoTextBlock.Text = "未正确选择电机号！选择电机号请输入1或2或3或4！";
+                In_textBox.Text = "未正确选择电机号！选择电机号请输入1或2或3或4！";
+            }
+                
             else
             {
                 if (add_enable != 0 && add_enable != 1)
-                    MessageBox.Show("选择是否使能请输入0或1");
+                {
+                    //MessageBox.Show("选择是否使能请输入0或1");
+                    statusBar.Background = new SolidColorBrush(Color.FromArgb(255, 230, 20, 20));
+                    statusInfoTextBlock.Text = "选择是否使能请输入0或1！";
+                    In_textBox.Text = "选择是否使能请输入0或1！";
+                }
+                  
                 else
                 {
                     if (add_speed > 3000 || add_speed < 1800)
-                        MessageBox.Show("输入转速无效，请在范围1800~3000内选择");
+                    {
+                        //MessageBox.Show("输入转速无效，请在范围1800~3000内选择");
+                        statusBar.Background = new SolidColorBrush(Color.FromArgb(255, 230, 20, 20));
+                        statusInfoTextBlock.Text = "输入转速无效，请在范围1800~3000内选择！";
+                        In_textBox.Text = "输入转速无效，请在范围1800~3000内选择！";
+                    }
+                      
                     else
                     {
                         if (add_direction != 0 && add_direction != 1)
-                            MessageBox.Show("选择电机方向请输入0或1");
+                        {
+                            //MessageBox.Show("选择电机方向请输入0或1");
+                            statusBar.Background = new SolidColorBrush(Color.FromArgb(255, 230, 20, 20));
+                            statusInfoTextBlock.Text = "选择电机方向请输入0或1！";
+                            In_textBox.Text = "选择电机方向请输入0或1！";
+                        }
+                           
                         else
                         {
 
@@ -383,28 +416,36 @@ namespace Skeleton_Monitor
                                     cmdSendBytes[2] = add_directionbyte;
                                     cmdSendBytes[3] = add_speedbytes[1];
                                     cmdSendBytes[4] = add_speedbytes[0];
-                                    In_textBox.Text = "电机" + add_motorNum + "使能" + add_enable + "转速" + add_speed;
+                                    In_textBox.Text = "添加【" + "电机" + add_motorNum + " 使能" + add_enable + " 方向" + add_direction + " 转速" + add_speed + "】命令";
+                                    statusBar.Background = new SolidColorBrush(Color.FromArgb(255, 0, 122, 204));
+                                    statusInfoTextBlock.Text = "添加【" + "电机" + add_motorNum + " 使能" + add_enable + " 方向" + add_direction + " 转速" + add_speed + "】命令";
                                     break;
                                 case 2: //电机2添加字节命令
                                     cmdSendBytes[5] = add_enablebyte;
                                     cmdSendBytes[6] = add_directionbyte;
                                     cmdSendBytes[7] = add_speedbytes[1];
                                     cmdSendBytes[8] = add_speedbytes[0];
-                                    In_textBox.Text = "电机" + add_motorNum + "使能" + add_enable + "转速" + add_speed;
+                                    In_textBox.Text = "添加【" + "电机" + add_motorNum + " 使能" + add_enable + " 方向" + add_direction + " 转速" + add_speed + "】命令";
+                                    statusBar.Background = new SolidColorBrush(Color.FromArgb(255, 0, 122, 204));
+                                    statusInfoTextBlock.Text = "添加【" + "电机" + add_motorNum + " 使能" + add_enable + " 方向" + add_direction + " 转速" + add_speed + "】命令";
                                     break;
                                 case 3: //电机3添加字节命令
                                     cmdSendBytes[9] = add_enablebyte;
                                     cmdSendBytes[10] = add_directionbyte;
                                     cmdSendBytes[11] = add_speedbytes[1];
                                     cmdSendBytes[12] = add_speedbytes[0];
-                                    In_textBox.Text = "电机" + add_motorNum + "使能" + add_enable + "转速" + add_speed;
+                                    In_textBox.Text = "添加【" + "电机" + add_motorNum + " 使能" + add_enable + " 方向" + add_direction + " 转速" + add_speed + "】命令";
+                                    statusBar.Background = new SolidColorBrush(Color.FromArgb(255, 0, 122, 204));
+                                    statusInfoTextBlock.Text = "添加【" + "电机" + add_motorNum + " 使能" + add_enable + " 方向" + add_direction + " 转速" + add_speed + "】命令";
                                     break;
                                 case 4: //电机4添加字节命令
                                     cmdSendBytes[13] = add_enablebyte;
                                     cmdSendBytes[14] = add_directionbyte;
                                     cmdSendBytes[15] = add_speedbytes[1];
                                     cmdSendBytes[16] = add_speedbytes[0];
-                                    In_textBox.Text = "电机" + add_motorNum + "使能" + add_enable + "转速" + add_speed;
+                                    In_textBox.Text = "添加【" + "电机" + add_motorNum + " 使能" + add_enable + " 方向" + add_direction + " 转速" + add_speed + "】命令";
+                                    statusBar.Background = new SolidColorBrush(Color.FromArgb(255, 0, 122, 204));
+                                    statusInfoTextBlock.Text = "添加【" + "电机" + add_motorNum + " 使能" + add_enable + " 方向" + add_direction + " 转速" + add_speed + "】命令";
                                     break;
                             }
                         }
@@ -419,11 +460,16 @@ namespace Skeleton_Monitor
             try
             {
                 methods.SendControlCMD(clearBytes);
-                Out_textBox.Text = "电机已停止";
+                Out_textBox.Text = "电机已停止！";
+                statusBar.Background = new SolidColorBrush(Color.FromArgb(255, 0, 122, 204));
+                statusInfoTextBlock.Text = "电机已停止！请将电机复位！";
             }
             catch
             {
-                MessageBox.Show("未正确选择电机串口!");
+                //MessageBox.Show("未正确选择电机串口!");
+                statusBar.Background = new SolidColorBrush(Color.FromArgb(255, 230, 20, 20));
+                statusInfoTextBlock.Text = "未正确选择电机串口！";
+                Out_textBox.Text = "未正确选择电机串口！";
             }
             
         }
@@ -437,30 +483,36 @@ namespace Skeleton_Monitor
                 try
                 {
                     methods.SendControlCMD(cmdSendBytes);                           //给电机串口写入字节命令
+                    Out_textBox.Text = "已发送至电机";                      //【输出信息窗口】显示“已发送至电机”
                 }
                 catch
                 {
-                    MessageBox.Show("未正确选择电机串口!");
+                    //MessageBox.Show("未正确选择电机串口!");
+                    statusBar.Background = new SolidColorBrush(Color.FromArgb(255, 230, 20, 20));
+                    statusInfoTextBlock.Text = "未正确选择电机串口！";
+                    Out_textBox.Text = "未正确选择电机串口！";
                 }
 
                 Send_button.Content = "发送命令";                       //命令发送完毕后按钮文本变回来
-                Out_textBox.Text = "已发送至电机";                      //【输出信息窗口】显示“已发送至电机”
                 cmdSendBytes = new byte[19] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };//重置字节命令存储器cmdSendBytes
                 In_textBox.Text = "";                                   //清空输入信息窗口
                 choosecount = 0;                                        //重置已添加命令电机个数
             }
             else
             {
-                MessageBox.Show("未给电机添加参数");
+                //MessageBox.Show("未给电机添加参数");
+                statusBar.Background = new SolidColorBrush(Color.FromArgb(255, 230, 20, 20));
+                statusInfoTextBlock.Text = "未给电机添加参数";
             }
         }
 
         private void AngleInitializeButton_Click(object sender, RoutedEventArgs e)//点击【角度初始化】按钮时执行
         {
-            statusBar.Background = new SolidColorBrush(Color.FromArgb(255, 233, 150, 122));
+            statusBar.Background = new SolidColorBrush(Color.FromArgb(255, 0, 122, 204));
             statusInfoTextBlock.Text = "角度初始化完成!";
             Out_textBox.Text = "角度初始化完成!";
             methods.AngleInit();
+
             IsTrueForefootZero = true;
             AngleInit_button.IsEnabled = false;
             ActionStart_button.IsEnabled = true;
@@ -471,10 +523,12 @@ namespace Skeleton_Monitor
             //需要获取角度、倾角、足底压力信息，并实现电机操控
             //时间触发 为真
 
-            statusBar.Background = new SolidColorBrush(Color.FromArgb(255, 233, 150, 122));
+            statusBar.Background = new SolidColorBrush(Color.FromArgb(255, 0, 122, 204));
             statusInfoTextBlock.Text = "动作已开始!";
+
             Out_textBox.Text = "动作已开始!";
             ActionStart_button.Content = "已开始";
+            ActionStop_button.Content = "动作停止";
             IsTrueClickDown = true;
             ActionStart_button.Background = Brushes.DarkSalmon;
             ActionStop_button.Background = Brushes.White;
@@ -486,16 +540,20 @@ namespace Skeleton_Monitor
 
         private void ActionStopButton_Click(object sender, RoutedEventArgs e)//点击【动作停止】按钮时执行
         {
-            statusBar.Background = new SolidColorBrush(Color.FromArgb(255, 233, 150, 122));
+            statusBar.Background = new SolidColorBrush(Color.FromArgb(255, 0, 122, 204));
             statusInfoTextBlock.Text = "动作已停止!";
+
             Out_textBox.Text = "动作已停止!";
+            ActionStart_button.Content = "动作开始";
+            ActionStop_button.Content = "已停止";
             ActionStart_button.Background = Brushes.White;
             IsTrueClickDown = false;
             ActionStop_button.Background = Brushes.DarkSalmon;
 
+            methods._angleInitialization = new double[6] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 
             AngleInit_button.IsEnabled = true;
-            ActionStart_button.IsEnabled = true;
+            ActionStart_button.IsEnabled = false;
             ActionStop_button.IsEnabled = false;
         }
         #endregion
@@ -520,7 +578,7 @@ namespace Skeleton_Monitor
                         IsTrueSquatting = true; //正在下蹲中
 
                         //如果腿部角度未达到阈值
-                        if (methods.dirangle[7] < 75 && (Math.Abs(methods._angle[2]) < 5 || Math.Abs(methods._angle[3]) < 5))//后背陀螺仪y轴小于75°(初始是90°摆放)；左腿和右腿角度传感器小于5°（说明角度初始化完成）时执行
+                        if (Math.Abs(methods.dirangle[7]) < 75 && (Math.Abs(methods._angle[2]) < 5 || Math.Abs(methods._angle[3]) < 5))//后背陀螺仪y轴小于75°(初始是90°摆放)；左腿和右腿角度传感器小于5°（说明角度初始化完成）时执行
                         {
                             istrueX = true;
                         }
@@ -660,7 +718,11 @@ namespace Skeleton_Monitor
                         }
                        catch
                         {
-                            MessageBox.Show("未正确选择电机串口!");
+                            //MessageBox.Show("未正确选择电机串口!");
+                            statusBar.Background = new SolidColorBrush(Color.FromArgb(255, 230, 20, 20));
+                            statusInfoTextBlock.Text = "未正确选择电机串口！请选择正确电机串口后重新按下【动作开始】按钮";
+                            Out_textBox.Text = "未正确选择电机串口！请选择正确电机串口后重新按下【动作开始】按钮";
+
                             IsTrueClickDown = false;
                             ActionStart_button.Content = "动作开始";
                             ActionStart_button.IsEnabled = true;
@@ -834,7 +896,11 @@ namespace Skeleton_Monitor
                         }
                         catch
                         {
-                            MessageBox.Show("未正确选择电机串口!");
+                            //MessageBox.Show("未正确选择电机串口!");
+                            statusBar.Background = new SolidColorBrush(Color.FromArgb(255, 150, 50, 50));
+                            statusInfoTextBlock.Text = "未正确选择电机串口！请选择正确电机串口后重新按下【动作开始】按钮";
+                            Out_textBox.Text = "未正确选择电机串口！请选择正确电机串口后重新按下【动作开始】按钮";
+
                             IsTrueClickDown = false;
                             ActionStart_button.Content = "动作开始";
                             ActionStart_button.IsEnabled = true;
