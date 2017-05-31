@@ -218,7 +218,7 @@ namespace Skeleton_Monitor
                         }
                         else//当角度传感器可能超过360°而突变为0°时
                         {
-                            if (_angle[i] - _angleInitialization[i] > 0)
+                            if (_angle[i] - _angleInitialization[i] > -5)//理论是0，但误差范围可以给大些，转过360°后该值会突变成非常小的负数（-300°左右）
                                 _angle[i] = _angle[i] - _angleInitialization[i];
                             else
                                 _angle[i] = _angle[i] + auxiliary_angle[i];

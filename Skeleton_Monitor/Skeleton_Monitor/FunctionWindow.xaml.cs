@@ -493,6 +493,7 @@ namespace Skeleton_Monitor
             IsTrueClickDown = false;
             ActionStop_button.Background = Brushes.DarkSalmon;
 
+
             AngleInit_button.IsEnabled = true;
             ActionStart_button.IsEnabled = true;
             ActionStop_button.IsEnabled = false;
@@ -523,7 +524,7 @@ namespace Skeleton_Monitor
                         {
                             istrueX = true;
                         }
-                        if (istrueX && (Math.Abs(methods._angle[2]) < 60 || Math.Abs(methods._angle[3]) < 60))//初始化完成且左腿和右腿没转到60°时执行
+                        if (istrueX && (Math.Abs(methods._angle[2]) < 60 || Math.Abs(methods._angle[3]) < 40))//初始化完成且左腿没转到60°或右腿没转到40°时执行；此处右腿40°比左腿60°幅度还稍大，故不可设置成相同角度，原因未知
                         {
                             int rSpeed1 = 3000;//动作开始电机转速
                             int rSpeed2 = 2500;//动作结束前降速缓冲
@@ -552,13 +553,13 @@ namespace Skeleton_Monitor
                                 cmdSendBytes[7] = 0;
                                 cmdSendBytes[8] = 0;
                             }
-                            if (Math.Abs(methods._angle[3]) < 60)//右腿电机3控制
+                            if (Math.Abs(methods._angle[3]) < 40)//右腿电机3控制
                             {
                                 cmdSendBytes[9] = 1; //电机3使能
                                 cmdSendBytes[10] = 0;//电机3方向
                                 cmdSendBytes[11] = rSpeedBytes1[1];//电机3转速高位
                                 cmdSendBytes[12] = rSpeedBytes1[0];//电机3转速地位 (范围1800-16200）对应速度范围（0-2590r/min）
-                                if (methods._angle[3] > 50)//右腿电机快转到位时电机降速至3000
+                                if (Math.Abs(methods._angle[3]) > 30)//右腿电机快转到位时电机降速至3000
                                 {
                                     cmdSendBytes[11] = rSpeedBytes2[1];
                                     cmdSendBytes[12] = rSpeedBytes2[0];
@@ -575,7 +576,7 @@ namespace Skeleton_Monitor
 
                             //肘部角度值检测以 确定手部运动
                             //角度大于阈值（40度） 模拟放下重物动作（即伸直） 小于阈值 无动作
-                            if (methods._angle[0] > 40)//左手弯曲时执行
+                            if (Math.Abs(methods._angle[0]) > 40)//左手弯曲时执行
                             {
                                 cmdSendBytes[1] = 1;
                                 cmdSendBytes[2] = 1;
@@ -585,7 +586,7 @@ namespace Skeleton_Monitor
                             }
                             else
                             {
-                                if (methods._angle[0] > 5)
+                                if (Math.Abs(methods._angle[0]) > 5)
                                 {
                                     cmdSendBytes[1] = 1;
                                     cmdSendBytes[2] = 1;
@@ -600,7 +601,7 @@ namespace Skeleton_Monitor
                                 }
 
                             }
-                            if (methods._angle[1] < -40)
+                            if (Math.Abs(methods._angle[1]) > 40)
                             {
                                 cmdSendBytes[13] = 1;
                                 cmdSendBytes[14] = 0;
@@ -609,7 +610,7 @@ namespace Skeleton_Monitor
                             }
                             else
                             {
-                                if (methods._angle[1] < -5)
+                                if (Math.Abs(methods._angle[1]) > 5)
                                 {
 
                                     cmdSendBytes[13] = 1;
@@ -638,7 +639,7 @@ namespace Skeleton_Monitor
                             cmdSendBytes[11] = 0;
                             cmdSendBytes[12] = 0;
                             //肘部小于阈值
-                            if (methods._angle[0] < 5 && methods._angle[1] > -5)//若肘部关节比腿部关节到位慢，这里需要一个安全保证肘部到位时会停下来并指示蹲下动作完成
+                            if (Math.Abs(methods._angle[0]) < 5 && Math.Abs(methods._angle[1]) < 5)//若肘部关节比腿部关节到位慢，这里需要一个安全保证肘部到位时会停下来并指示蹲下动作完成
                             {
                                 cmdSendBytes[1] = 0;
                                 cmdSendBytes[2] = 0;
@@ -678,27 +679,27 @@ namespace Skeleton_Monitor
                         //{
                         //    press += spmManager.tempPress[i];
                         //}
-                        if (methods.tempPress[7] > 200)//达到压力传感器8的阈值：原阈值设置为80，稍微扯一下压力传感器8的线双腿就会伸直，故这里设置得高一些
+                        if (methods.tempPress[7] > 200)//压力传感器8闲置误差估计在0~100之间，故阈值设高一些免得自动触发
                         {
                             istrueY = true;
                         }
                         if (istrueY)
                         {
-                            int rSpeed1 = 3600;
-                            int rSpeed2 = 3000;
+                            int rSpeed1 = 3000;
+                            int rSpeed2 = 2500;
 
 
                             byte[] rSpeedBytes1 = BitConverter.GetBytes(rSpeed1);
                             byte[] rSpeedBytes2 = BitConverter.GetBytes(rSpeed2);
                             //  腿部电机控制
 
-                            if (methods._angle[2] < -5)//左腿伸直
+                            if (Math.Abs(methods._angle[2]) > 5)//左腿伸直
                             {
                                 cmdSendBytes[5] = 1;
                                 cmdSendBytes[6] = 0;
                                 cmdSendBytes[7] = rSpeedBytes1[1];
                                 cmdSendBytes[8] = rSpeedBytes1[0];
-                                if (methods._angle[2] > -10)
+                                if (Math.Abs(methods._angle[2]) < 10)
                                 {
                                     cmdSendBytes[7] = rSpeedBytes2[1];
                                     cmdSendBytes[8] = rSpeedBytes2[0];
@@ -708,7 +709,7 @@ namespace Skeleton_Monitor
                             {
                                 cmdSendBytes[5] = 0;
                             }
-                            if (Math.Abs(methods._angle[3]) > 5)//右腿伸直:此角度传感器在增加到40°左右时会突变为-320°，此处改为绝对值依然可以完成原任务
+                            if (Math.Abs(methods._angle[3]) > 5)//右腿伸直
                             {
                                 cmdSendBytes[9] = 1;
                                 cmdSendBytes[10] = 1;
@@ -728,7 +729,7 @@ namespace Skeleton_Monitor
                             if (methods.tempPress[7] > 200)
                             {  //肘部角度值检测以 确定手部运动
                                // 角度大于阈值（10度） 模拟拿起重物动作 小于阈值 无动作
-                                if (methods._angle[0] < 50)//肘部弯曲
+                                if (Math.Abs(methods._angle[0]) < 50)//肘部弯曲
                                 {
                                     cmdSendBytes[1] = 1;
                                     cmdSendBytes[2] = 0;
@@ -738,7 +739,7 @@ namespace Skeleton_Monitor
                                 }
                                 else
                                 {
-                                    if (methods._angle[0] < 60)
+                                    if (Math.Abs(methods._angle[0]) < 60)
                                     {
                                         cmdSendBytes[1] = 1;
                                         cmdSendBytes[2] = 0;
@@ -755,7 +756,7 @@ namespace Skeleton_Monitor
                                     }
 
                                 }
-                                if (methods._angle[1] > -50)//肘部弯曲
+                                if (Math.Abs(methods._angle[1]) < 50)//肘部弯曲
                                 {
                                     cmdSendBytes[13] = 1;
                                     cmdSendBytes[14] = 1;
@@ -764,7 +765,7 @@ namespace Skeleton_Monitor
                                 }
                                 else
                                 {
-                                    if (methods._angle[1] > -60)
+                                    if (Math.Abs(methods._angle[1]) < 60)
                                     {
                                         cmdSendBytes[13] = 1;
                                         cmdSendBytes[14] = 1;
