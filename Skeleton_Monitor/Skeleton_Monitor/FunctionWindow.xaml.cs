@@ -353,8 +353,8 @@ namespace Skeleton_Monitor
                     MessageBox.Show("选择是否使能请输入0或1");
                 else
                 {
-                    if (add_speed > 3000 || add_speed < 1500)
-                        MessageBox.Show("输入转速无效，请在范围1500~3000内选择");
+                    if (add_speed > 3000 || add_speed < 2000)
+                        MessageBox.Show("输入转速无效，请在范围2000~3000内选择");
                     else
                     {
                         if (add_direction != 0 && add_direction != 1)
@@ -665,7 +665,7 @@ namespace Skeleton_Monitor
                         //{
                         //    press += spmManager.tempPress[i];
                         //}
-                        if (methods.tempPress[7] > 40)//达到压力传感器8的阈值
+                        if (methods.tempPress[7] > 200)//达到压力传感器8的阈值：原阈值设置为80，稍微扯一下压力传感器8的线双腿就会伸直，故这里设置得高一些
                         {
                             istrueY = true;
                         }
@@ -679,7 +679,7 @@ namespace Skeleton_Monitor
                             byte[] rSpeedBytes2 = BitConverter.GetBytes(rSpeed2);
                             //  腿部电机控制
 
-                            if (methods._angle[2] < -5)//腿部伸直
+                            if (methods._angle[2] < -5)//左腿伸直
                             {
                                 cmdSendBytes[5] = 1;
                                 cmdSendBytes[6] = 0;
@@ -695,13 +695,13 @@ namespace Skeleton_Monitor
                             {
                                 cmdSendBytes[5] = 0;
                             }
-                            if (methods._angle[3] > 5)//腿部伸直
+                            if (Math.Abs(methods._angle[3]) > 5)//右腿伸直:此角度传感器在增加到40°左右时会突变为-320°，此处改为绝对值依然可以完成原任务
                             {
                                 cmdSendBytes[9] = 1;
                                 cmdSendBytes[10] = 1;
                                 cmdSendBytes[11] = rSpeedBytes1[1];
                                 cmdSendBytes[12] = rSpeedBytes1[0];
-                                if (methods._angle[3] < 10)
+                                if (Math.Abs(methods._angle[3]) < 10)
                                 {
                                     cmdSendBytes[11] = rSpeedBytes2[1];
                                     cmdSendBytes[12] = rSpeedBytes2[0];
