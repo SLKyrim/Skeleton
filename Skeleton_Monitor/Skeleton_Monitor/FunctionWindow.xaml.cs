@@ -353,8 +353,8 @@ namespace Skeleton_Monitor
                     MessageBox.Show("选择是否使能请输入0或1");
                 else
                 {
-                    if (add_speed > 3000 || add_speed < 2000)
-                        MessageBox.Show("输入转速无效，请在范围2000~3000内选择");
+                    if (add_speed > 3000 || add_speed < 1800)
+                        MessageBox.Show("输入转速无效，请在范围1800~3000内选择");
                     else
                     {
                         if (add_direction != 0 && add_direction != 1)
@@ -419,6 +419,7 @@ namespace Skeleton_Monitor
             try
             {
                 methods.SendControlCMD(clearBytes);
+                Out_textBox.Text = "电机已停止";
             }
             catch
             {
@@ -456,10 +457,13 @@ namespace Skeleton_Monitor
 
         private void AngleInitializeButton_Click(object sender, RoutedEventArgs e)//点击【角度初始化】按钮时执行
         {
-            AngleInit_button.Background = new SolidColorBrush(Color.FromArgb(255, 173, 255, 47));
+            statusBar.Background = new SolidColorBrush(Color.FromArgb(255, 233, 150, 122));
+            statusInfoTextBlock.Text = "角度初始化完成!";
+            Out_textBox.Text = "角度初始化完成!";
             methods.AngleInit();
             IsTrueForefootZero = true;
-            AngleInit_button.Content = "初始化完成";
+            AngleInit_button.IsEnabled = false;
+            ActionStart_button.IsEnabled = true;
         }
 
         private void ActionStartButton_Click(object sender, RoutedEventArgs e)//点击【动作开始】按钮时执行
@@ -467,22 +471,29 @@ namespace Skeleton_Monitor
             //需要获取角度、倾角、足底压力信息，并实现电机操控
             //时间触发 为真
 
+            statusBar.Background = new SolidColorBrush(Color.FromArgb(255, 233, 150, 122));
+            statusInfoTextBlock.Text = "动作已开始!";
+            Out_textBox.Text = "动作已开始!";
             ActionStart_button.Content = "已开始";
             IsTrueClickDown = true;
             ActionStart_button.Background = Brushes.DarkSalmon;
             ActionStop_button.Background = Brushes.White;
 
+            AngleInit_button.IsEnabled = false;
             ActionStart_button.IsEnabled = false;
             ActionStop_button.IsEnabled = true;
         }
 
         private void ActionStopButton_Click(object sender, RoutedEventArgs e)//点击【动作停止】按钮时执行
         {
-            ActionStart_button.Content = "动作开始";
+            statusBar.Background = new SolidColorBrush(Color.FromArgb(255, 233, 150, 122));
+            statusInfoTextBlock.Text = "动作已停止!";
+            Out_textBox.Text = "动作已停止!";
             ActionStart_button.Background = Brushes.White;
             IsTrueClickDown = false;
             ActionStop_button.Background = Brushes.DarkSalmon;
 
+            AngleInit_button.IsEnabled = true;
             ActionStart_button.IsEnabled = true;
             ActionStop_button.IsEnabled = false;
         }
@@ -492,6 +503,8 @@ namespace Skeleton_Monitor
         {
             //动作流程说明：背往前倾准备下蹲 --> 双腿弯曲下蹲 --> 长按压力传感器8(模拟拿重物），双腿伸直起立同时双手弯曲 -->
             //              背往前倾准备下蹲 --> 双腿弯曲下蹲同时双手伸直（放下重物） --> 按一下压力传感器8，双腿伸直起立
+
+            
 
             //检测【动作开始】按扭是否按下
             if (IsTrueClickDown)
@@ -506,27 +519,27 @@ namespace Skeleton_Monitor
                         IsTrueSquatting = true; //正在下蹲中
 
                         //如果腿部角度未达到阈值
-                        if (methods.dirangle[7] < 75 && (Math.Abs(methods._angle[2]) < 7 || Math.Abs(methods._angle[3]) < 7))//后背陀螺仪y轴小于75°(初始是90°摆放)；左腿和右腿角度传感器小于7°（说明角度初始化完成）时执行
+                        if (methods.dirangle[7] < 75 && (Math.Abs(methods._angle[2]) < 5 || Math.Abs(methods._angle[3]) < 5))//后背陀螺仪y轴小于75°(初始是90°摆放)；左腿和右腿角度传感器小于5°（说明角度初始化完成）时执行
                         {
                             istrueX = true;
                         }
                         if (istrueX && (Math.Abs(methods._angle[2]) < 60 || Math.Abs(methods._angle[3]) < 60))//初始化完成且左腿和右腿没转到60°时执行
                         {
-                            int rSpeed1 = 3600;
-                            int rSpeed2 = 3000;
+                            int rSpeed1 = 3000;//动作开始电机转速
+                            int rSpeed2 = 2500;//动作结束前降速缓冲
 
 
                             byte[] rSpeedBytes1 = BitConverter.GetBytes(rSpeed1);
                             byte[] rSpeedBytes2 = BitConverter.GetBytes(rSpeed2);
                             //腿部电机控制
 
-                            if (methods._angle[2] > -60)//左腿电机2控制
+                            if (Math.Abs(methods._angle[2]) < 60)//左腿电机2控制
                             {
                                 cmdSendBytes[5] = 1;//电机2使能
                                 cmdSendBytes[6] = 1;//电机2方向
                                 cmdSendBytes[7] = rSpeedBytes1[1];//电机2转速高位
                                 cmdSendBytes[8] = rSpeedBytes1[0];//电机2转速地位 (范围1800-16200）对应速度范围（0-2590r/min）
-                                if (methods._angle[2] < -50)//左腿电机快转到位时电机降速至3000
+                                if (Math.Abs(methods._angle[2]) > 50)//左腿电机快转到位时电机降速缓冲
                                 {
                                     cmdSendBytes[7] = rSpeedBytes2[1];
                                     cmdSendBytes[8] = rSpeedBytes2[0];
@@ -539,7 +552,7 @@ namespace Skeleton_Monitor
                                 cmdSendBytes[7] = 0;
                                 cmdSendBytes[8] = 0;
                             }
-                            if (methods._angle[3] < 60)//右腿电机3控制
+                            if (Math.Abs(methods._angle[3]) < 60)//右腿电机3控制
                             {
                                 cmdSendBytes[9] = 1; //电机3使能
                                 cmdSendBytes[10] = 0;//电机3方向

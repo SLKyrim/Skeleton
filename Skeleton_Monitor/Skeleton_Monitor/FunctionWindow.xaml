@@ -9,7 +9,7 @@
       Title="FunctionWindow" ShowsNavigationUI="False" Loaded="FunctionWindow_Loaded">
     <DockPanel Name="rootPanel" Background="White">
         <!--状态栏-->
-        <StatusBar DockPanel.Dock="Bottom" Name="statusBar" Background="#FF007ACC" Padding="2">
+        <StatusBar DockPanel.Dock="Bottom" x:Name="statusBar" Background="#FF007ACC" Padding="2">
             <!--状态栏文本框-->
             <StatusBarItem HorizontalAlignment="Left">
                 <TextBlock Name="statusInfoTextBlock" Foreground="White">外骨骼控制界面</TextBlock>
@@ -302,7 +302,7 @@
                             <TextBox x:Name="Angle6_Textbox" Width="80" IsReadOnly="True" Height="25" Margin="0,6,1,0"  VerticalAlignment="Top" Text="0" FontSize="15"/>
                         </GroupBox>
                         <Button x:Name="AngleInit_button" DockPanel.Dock="Top" Content="角度初始化"  Margin="0,3,0,0" Width="88" Click="AngleInitializeButton_Click"/>
-                        <Button x:Name="ActionStart_button" DockPanel.Dock="Top" IsEnabled="True" Content="动作开始"  Margin="0,3,0,0" Width="88" Click="ActionStartButton_Click"/>
+                        <Button x:Name="ActionStart_button" DockPanel.Dock="Top" IsEnabled="False" Content="动作开始"  Margin="0,3,0,0" Width="88" Click="ActionStartButton_Click"/>
                         <Button x:Name="ActionStop_button" DockPanel.Dock="Top" IsEnabled="False" Content="动作停止"  Margin="0,3,0,0" Width="88"   Click="ActionStopButton_Click"/>
                     </DockPanel>
                 </GroupBox>

@@ -38,6 +38,7 @@ namespace Skeleton_Monitor
         public double[] _angle = new double[6];//存储角度值（0°到 ?°)；只用到前4个
         private double[] _angleInitialization = new double[6];//【角度初始化】按钮也用到
         private Int16[] tempAngle2 = new Int16[8];//存储倾角AD转换后的值（0-4096）
+        private double[] auxiliary_angle = new double[6];//初始角度的补角：角度传感器初始值在290°以上时，为防止转到360°后角度突变为0°，需要用到
 
         //关闭窗口
         //private DispatcherTimer ShowTimer1;
@@ -208,9 +209,20 @@ namespace Skeleton_Monitor
                         tempAngle2[f] = BitConverter.ToInt16(bytes, f * 2 + 16);              //用到的4个角度传感器的值看来是存放在bytes[16]到bytes[23]这个8个位上
                         _angle[f] = Convert.ToDouble(tempAngle2[f]) / 4096 * 3.3 / 3.05 * 360;//从AD值转化为对应角度值
                     }
+
                     for (int i = 0; i < 4; i++)
                     {
-                        _angle[i] = _angle[i] - _angleInitialization[i]; //减去初始角度误差值得到动作时的真实初始角度
+                        if(_angleInitialization[i] < 290)
+                        {
+                            _angle[i] = _angle[i] - _angleInitialization[i];//角度初始化后的_angleInitialization[i]基本和_angle[i]相等，这样获得的_angle[i]即为初始值0
+                        }
+                        else//当角度传感器可能超过360°而突变为0°时
+                        {
+                            if (_angle[i] - _angleInitialization[i] > 0)
+                                _angle[i] = _angle[i] - _angleInitialization[i];
+                            else
+                                _angle[i] = _angle[i] + auxiliary_angle[i];
+                        }
                     }
                 }
             }
@@ -237,7 +249,7 @@ namespace Skeleton_Monitor
             for (int i = 0; i < 6; i++)
                 _angleInitialization[i] = 0;
 
-            int numberOfGather = 5;  //_angleInitialization[j]加五次实际实时角度值_angle[j]，再除以5得角度初始误差值_angleInitialization[i]
+            int numberOfGather = 5;  //_angleInitialization[j]加五次实际实时角度值_angle[j]，再除以5得实际的去除部分误差的初始值 _angleInitialization[i]
 
             for (int i = 0; i < numberOfGather; i++)
             {
@@ -245,7 +257,11 @@ namespace Skeleton_Monitor
                     _angleInitialization[j] += _angle[j];
             }
             for (int i = 0; i < 6; i++)
+            {
                 _angleInitialization[i] /= numberOfGather;
+                auxiliary_angle[i] = 360.00 - _angleInitialization[i];//初始角度的补角
+            }
+                
         }
         #endregion
 
