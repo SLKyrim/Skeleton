@@ -558,7 +558,7 @@ namespace Skeleton_Monitor
         }
         #endregion
 
-        public void Action(object sender, EventArgs e)//雪松版动作
+        public void Action(object sender, EventArgs e)//模拟抬重物动作
         {
             //动作流程说明：背往前倾准备下蹲 --> 双腿弯曲下蹲 --> 长按压力传感器8(模拟拿重物），双腿伸直起立同时双手弯曲 -->
             //              背往前倾准备下蹲 --> 双腿弯曲下蹲同时双手伸直（放下重物） --> 按一下压力传感器8，双腿伸直起立
