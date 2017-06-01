@@ -248,7 +248,10 @@ namespace Skeleton_Monitor
                 if (comcount != 0)
                 {
                     //在操作过程中增加或减少串口时发生
-                    MessageBox.Show("串口数目已改变，请重新选择串口");
+                    //MessageBox.Show("串口数目已改变，请重新选择串口");
+                    Out_textBox.Text = "串口数目已改变，请重新选择串口！";
+                    statusBar.Background = new SolidColorBrush(Color.FromArgb(255, 230, 20, 20));
+                    statusInfoTextBlock.Text = "串口数目已改变，请重新选择串口！";
                 }
 
                 comcount = SPCount.Length;     //将可用串口计数器与现在可用串口个数匹配
@@ -297,23 +300,23 @@ namespace Skeleton_Monitor
             //电机1的文本框输出
             Motor1_enable_textBox.Text = methods.enable[0].ToString();             //使能
             Motor1_direction_textBox.Text = methods.direction[0].ToString("F");    //方向；"F"格式，默认保留两位小数
-            Motor1_speed_textBox.Text = methods.speed[0].ToString("F");            //转速
-            Motor1_current_textBox.Text = methods.current[0].ToString("F");        //电流
+            Motor1_speed_textBox.Text = Math.Abs(methods.speed[0]).ToString("F");            //转速
+            Motor1_current_textBox.Text = Math.Abs(methods.current[0]).ToString("F");        //电流
             //电机2的文本框输出
             Motor2_enable_textBox.Text = methods.enable[1].ToString();
             Motor2_direction_textBox.Text = methods.direction[1].ToString("F");
-            Motor2_speed_textBox.Text = methods.speed[1].ToString("F");
-            Motor2_current_textBox.Text = methods.current[1].ToString("F");
+            Motor2_speed_textBox.Text = Math.Abs(methods.speed[1]).ToString("F");
+            Motor2_current_textBox.Text = Math.Abs(methods.current[1]).ToString("F");
             //电机3的文本框输出
             Motor3_enable_textBox.Text = methods.enable[2].ToString();
             Motor3_direction_textBox.Text = methods.direction[2].ToString("F");
-            Motor3_speed_textBox.Text = methods.speed[2].ToString("F");
-            Motor3_current_textBox.Text = methods.current[2].ToString("F");
+            Motor3_speed_textBox.Text = Math.Abs(methods.speed[2]).ToString("F");
+            Motor3_current_textBox.Text = Math.Abs(methods.current[2]).ToString("F");
             //电机4的文本框输出
             Motor4_enable_textBox.Text = methods.enable[3].ToString();
             Motor4_direction_textBox.Text = methods.direction[3].ToString("F");
-            Motor4_speed_textBox.Text = methods.speed[3].ToString("F");
-            Motor4_current_textBox.Text = methods.current[3].ToString("F");
+            Motor4_speed_textBox.Text = Math.Abs(methods.speed[3]).ToString("F");
+            Motor4_current_textBox.Text = Math.Abs(methods.current[3]).ToString("F");
 
             //8个压力传感器的文本框输出
             Pressure1_Textbox.Text = methods.tempPress[0].ToString();
@@ -326,22 +329,22 @@ namespace Skeleton_Monitor
             Pressure8_Textbox.Text = methods.tempPress[7].ToString();
 
             //4个倾角传感器各自的x轴和y轴的文本框输出
-            Dip1_x_TextBox.Text = methods.dirangle[0].ToString("F");
-            Dip1_y_TextBox.Text = methods.dirangle[1].ToString("F");
-            Dip2_x_TextBox.Text = methods.dirangle[2].ToString("F");
-            Dip2_y_TextBox.Text = methods.dirangle[3].ToString("F");
-            Dip3_x_TextBox.Text = methods.dirangle[4].ToString("F");
-            Dip3_y_TextBox.Text = methods.dirangle[5].ToString("F");
-            Dip4_x_TextBox.Text = methods.dirangle[6].ToString("F");
-            Dip4_y_TextBox.Text = methods.dirangle[7].ToString("F");
+            Dip1_x_TextBox.Text = Math.Abs(methods.dirangle[0]).ToString("F");
+            Dip1_y_TextBox.Text = Math.Abs(methods.dirangle[1]).ToString("F");
+            Dip2_x_TextBox.Text = Math.Abs(methods.dirangle[2]).ToString("F");
+            Dip2_y_TextBox.Text = Math.Abs(methods.dirangle[3]).ToString("F");
+            Dip3_x_TextBox.Text = Math.Abs(methods.dirangle[4]).ToString("F");
+            Dip3_y_TextBox.Text = Math.Abs(methods.dirangle[5]).ToString("F");
+            Dip4_x_TextBox.Text = Math.Abs(methods.dirangle[6]).ToString("F");
+            Dip4_y_TextBox.Text = Math.Abs(methods.dirangle[7]).ToString("F");
 
             //6个角度传感器的文本框输出
-            Angle1_Textbox.Text = methods._angle[0].ToString("F");
-            Angle2_Textbox.Text = methods._angle[1].ToString("F");
-            Angle3_Textbox.Text = methods._angle[2].ToString("F");
-            Angle4_Textbox.Text = methods._angle[3].ToString("F");
-            Angle5_Textbox.Text = methods._angle[4].ToString("F");
-            Angle6_Textbox.Text = methods._angle[5].ToString("F");
+            Angle1_Textbox.Text = Math.Abs(methods._angle[0]).ToString("F");
+            Angle2_Textbox.Text = Math.Abs(methods._angle[1]).ToString("F");
+            Angle3_Textbox.Text = Math.Abs(methods._angle[2]).ToString("F");
+            Angle4_Textbox.Text = Math.Abs(methods._angle[3]).ToString("F");
+            Angle5_Textbox.Text = Math.Abs(methods._angle[4]).ToString("F");
+            Angle6_Textbox.Text = Math.Abs(methods._angle[5]).ToString("F");
         }
 
         #endregion
@@ -741,7 +744,7 @@ namespace Skeleton_Monitor
                         //{
                         //    press += spmManager.tempPress[i];
                         //}
-                        if (methods.tempPress[7] > 200)//压力传感器8闲置误差估计在0~100之间，故阈值设高一些免得自动触发
+                        if (methods.tempPress[7] > 500)//观察到压力传感器8闲置误差估计在0~200之间，故阈值设高一些免得自动触发
                         {
                             istrueY = true;
                         }
@@ -788,7 +791,7 @@ namespace Skeleton_Monitor
                                 cmdSendBytes[9] = 0;
                             }
 
-                            if (methods.tempPress[7] > 200)
+                            if (methods.tempPress[7] > 500)
                             {  //肘部角度值检测以 确定手部运动
                                // 角度大于阈值（10度） 模拟拿起重物动作 小于阈值 无动作
                                 if (Math.Abs(methods._angle[0]) < 50)//肘部弯曲
