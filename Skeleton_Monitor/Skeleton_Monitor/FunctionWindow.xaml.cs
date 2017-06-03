@@ -63,6 +63,10 @@ namespace Skeleton_Monitor
         public bool istrueX = false;
         public bool istrueY = false;
 
+        //动作模式选择面板
+        public bool isActionPick = false;
+        public bool isActionWalk = false;
+
         #endregion
 
         #region ComboBox控件
@@ -187,7 +191,13 @@ namespace Skeleton_Monitor
 
             DispatcherTimer showTimer = new DispatcherTimer();
             showTimer.Tick += new EventHandler(ShowSenderTimer); //增加了一个叫ShowSenderTimer的在电机和传感器的只读文本框中输出信息的委托
-            showTimer.Tick += new EventHandler(Action);          
+
+            //选择动作模式
+            if(isActionPick)
+                showTimer.Tick += new EventHandler(ActionPick);
+            if(isActionWalk)
+                showTimer.Tick += new EventHandler(ActionWalk);
+
             showTimer.Interval = new TimeSpan(0, 0, 0, 0, 100);  //文本变化间隔是??毫秒(并不准确)
             showTimer.Start();
         }
@@ -512,13 +522,16 @@ namespace Skeleton_Monitor
         private void AngleInitializeButton_Click(object sender, RoutedEventArgs e)//点击【角度初始化】按钮时执行
         {
             statusBar.Background = new SolidColorBrush(Color.FromArgb(255, 0, 122, 204));
-            statusInfoTextBlock.Text = "角度初始化完成!";
+            statusInfoTextBlock.Text = "角度初始化完成! 可以按下【动作开始】按钮";
             Out_textBox.Text = "角度初始化完成!";
             methods.AngleInit();
 
             IsTrueForefootZero = true;
+
             AngleInit_button.IsEnabled = false;
             ActionStart_button.IsEnabled = true;
+            ActionPick_button.IsEnabled = false;
+            ActionWalk_button.IsEnabled = false;
         }
 
         private void ActionStartButton_Click(object sender, RoutedEventArgs e)//点击【动作开始】按钮时执行
@@ -558,10 +571,32 @@ namespace Skeleton_Monitor
             AngleInit_button.IsEnabled = true;
             ActionStart_button.IsEnabled = false;
             ActionStop_button.IsEnabled = false;
+            ActionPick_button.IsEnabled = true;
+            ActionWalk_button.IsEnabled = true;
+        }
+
+        private void ActionPickButton_Click(object sender, RoutedEventArgs e)//点击【拾取重物】按钮时执行
+        {
+            isActionPick = true;
+            isActionWalk = false;
+            ActionPick_button.IsEnabled = false;
+            ActionWalk_button.IsEnabled = true;
+            statusBar.Background = new SolidColorBrush(Color.FromArgb(255, 0, 122, 204));
+            statusInfoTextBlock.Text = "已选择【拾取重物】动作模式，检查电机连接后请按【角度初始化】按钮";
+        }
+
+        private void ActionWalkButton_Click(object sender, RoutedEventArgs e)//点击【行走】按钮时执行
+        {
+            isActionPick = false;
+            isActionWalk = true;
+            ActionPick_button.IsEnabled = true;
+            ActionWalk_button.IsEnabled = false;
+            statusBar.Background = new SolidColorBrush(Color.FromArgb(255, 0, 122, 204));
+            statusInfoTextBlock.Text = "已选择【行走】动作模式，检查电机连接后请按【角度初始化】按钮";
         }
         #endregion
 
-        public void Action(object sender, EventArgs e)//模拟抬重物动作
+        public void ActionPick(object sender, EventArgs e)//【拾取重物】动作
         {
             //动作流程说明：背往前倾准备下蹲 --> 双腿弯曲下蹲 --> 长按压力传感器8(模拟拿重物），双腿伸直起立同时双手弯曲 -->
             //              背往前倾准备下蹲 --> 双腿弯曲下蹲同时双手伸直（放下重物） --> 按一下压力传感器8，双腿伸直起立
@@ -869,7 +904,7 @@ namespace Skeleton_Monitor
                             cmdSendBytes[10] = 0;
                             cmdSendBytes[11] = 0;
                             cmdSendBytes[12] = 0;
-                            if (istrueY && methods.tempPress[7] > 200)
+                            if (istrueY && methods.tempPress[7] > 500)
                             {
                                 if (Math.Abs(methods._angle[0]) > 60 && Math.Abs(methods._angle[1]) > 60)
                                 {
@@ -914,5 +949,21 @@ namespace Skeleton_Monitor
             }
         }
 
+        public void ActionWalk(object sender, EventArgs e)//【行走】动作
+        {
+            //检测【动作开始】按扭是否按下
+            if (IsTrueClickDown)
+            {
+                //检测【角度初始化】按扭是否按下
+                if (IsTrueForefootZero)
+                {
+                    //按住压力传感器8启动行走动作
+                    if (methods.tempPress[7] > 500)
+                    {
+
+                    }
+                }
+            }
+        }
     }
 }

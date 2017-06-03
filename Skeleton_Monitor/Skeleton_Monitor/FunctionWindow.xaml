@@ -195,8 +195,11 @@
                             </StackPanel>
                         </GroupBox>
                         <!--数据采集-->
-                        <GroupBox Header="数据采集" DockPanel.Dock="Right" Margin="5,0,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
-
+                        <GroupBox Header="动作模式选择面板" DockPanel.Dock="Right" Margin="5,0,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
+                            <DockPanel>
+                                <Button x:Name="ActionPick_button" IsEnabled="True" DockPanel.Dock="Top" Content="拾取重物"  Margin="3" Width="88" Click="ActionPickButton_Click"/>
+                                <Button x:Name="ActionWalk_button" IsEnabled="True" DockPanel.Dock="Bottom" Content="行走"  Margin="3" Width="88" Click="ActionWalkButton_Click"/>
+                            </DockPanel>
                         </GroupBox>
                     </DockPanel>
                 </GroupBox>
