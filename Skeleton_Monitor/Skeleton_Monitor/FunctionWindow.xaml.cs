@@ -67,6 +67,16 @@ namespace Skeleton_Monitor
         public bool isActionPick = false;
         public bool isActionWalk = false;
 
+        //ActionWalk所需参数
+        public bool DSt = false;        //左右摆动相中间过渡相
+        public bool init_LSW = false;   //左腿摆动相前期
+        public bool mid_LSW = false;    //左腿摆动相中期
+        public bool term_LSW = false;   //左腿摆动相后期
+        public bool init_RSW = false;   //右腿摆动相前期
+        public bool mid_RSW = false;    //右腿摆动相中期
+        public bool term_RSW = false;   //右腿摆动相后期
+        public bool mid_flag = false;
+
         #endregion
 
         #region ComboBox控件
@@ -960,6 +970,175 @@ namespace Skeleton_Monitor
                     //按住压力传感器8启动行走动作
                     if (methods.tempPress[7] > 500)
                     {
+
+                        int rSpeed1 = 3000;//动作开始电机转速
+                        int rSpeed2 = 2500;//动作结束前降速缓冲
+
+                        byte[] rSpeedBytes1 = BitConverter.GetBytes(rSpeed1);
+                        byte[] rSpeedBytes2 = BitConverter.GetBytes(rSpeed2);
+
+                        if (DSt == false && Math.Abs(methods._angle[2]) < 10 && Math.Abs(methods._angle[3]) < 10)//先迈右腿，左腿进入摆动相
+                            init_LSW = true; 
+
+                        if(init_LSW == true && (Math.Abs(methods._angle[2]) < 65 || Math.Abs(methods._angle[3]) < 25))//左腿摆动相前期
+                        {
+                            
+                            if(Math.Abs(methods._angle[2]) < 65)//左腿从0°~10°向64°弯曲
+                            {
+                                cmdSendBytes[5] = 1;
+                                cmdSendBytes[6] = 1;
+                                cmdSendBytes[7] = rSpeedBytes1[1];
+                                cmdSendBytes[8] = rSpeedBytes1[0];
+
+                                if(Math.Abs(methods._angle[2]) > 55)
+                                {
+                                    cmdSendBytes[7] = rSpeedBytes2[1];
+                                    cmdSendBytes[8] = rSpeedBytes2[0];
+                                }
+                            }
+                            else//保护机制，下同，一般不会触发
+                            {
+                                cmdSendBytes[5] = 0;
+                            }
+
+                            if (Math.Abs(methods._angle[3]) < 25)//右腿从0°~10°向24°弯曲
+                            {
+                                cmdSendBytes[9] = 1;
+                                cmdSendBytes[10] = 0;
+                                cmdSendBytes[11] = rSpeedBytes1[1];
+                                cmdSendBytes[12] = rSpeedBytes1[0];
+
+                                if (Math.Abs(methods._angle[3]) > 15)
+                                {
+                                    cmdSendBytes[11] = rSpeedBytes2[1];
+                                    cmdSendBytes[12] = rSpeedBytes2[0];
+                                }
+                            }
+                            else
+                            {
+                                cmdSendBytes[9] = 0;
+                            }
+
+                            if(Math.Abs(methods._angle[2]) > 64 && Math.Abs(methods._angle[3]) > 24)
+                            {
+                                init_LSW = false;
+                                mid_LSW = true;
+                            }
+                        }
+
+
+                        if (mid_LSW == true && (Math.Abs(methods._angle[2]) > 60 || Math.Abs(methods._angle[3]) > 10))//左腿摆动相中期
+                        {
+
+                            if (mid_flag == false && Math.Abs(methods._angle[2]) < 80)//左腿从60°向79°弯曲
+                            {
+                                cmdSendBytes[5] = 1;
+                                cmdSendBytes[6] = 1;
+                                cmdSendBytes[7] = rSpeedBytes1[1];
+                                cmdSendBytes[8] = rSpeedBytes1[0];
+
+                                if (Math.Abs(methods._angle[2]) > 70)
+                                {
+                                    cmdSendBytes[7] = rSpeedBytes2[1];
+                                    cmdSendBytes[8] = rSpeedBytes2[0];
+                                }
+
+                                if (Math.Abs(methods._angle[2]) > 79)
+                                    mid_flag = true;
+                            }
+
+                            if (mid_flag == true && Math.Abs(methods._angle[2]) > 60)//左腿从79°到61°伸直
+                            {
+                                cmdSendBytes[5] = 1;
+                                cmdSendBytes[6] = 0;
+                                cmdSendBytes[7] = rSpeedBytes1[1];
+                                cmdSendBytes[8] = rSpeedBytes1[0];
+
+                                if (Math.Abs(methods._angle[2]) < 70)
+                                {
+                                    cmdSendBytes[7] = rSpeedBytes2[1];
+                                    cmdSendBytes[8] = rSpeedBytes2[0];
+                                }
+                            }
+                            else
+                            {
+                                cmdSendBytes[5] = 0;
+                            }
+
+                            if (Math.Abs(methods._angle[3]) > 10)//右腿从24°向11°伸直
+                            {
+                                cmdSendBytes[9] = 1;
+                                cmdSendBytes[10] = 1;
+                                cmdSendBytes[11] = rSpeedBytes1[1];
+                                cmdSendBytes[12] = rSpeedBytes1[0];
+
+                                if (Math.Abs(methods._angle[3]) < 20)
+                                {
+                                    cmdSendBytes[11] = rSpeedBytes2[1];
+                                    cmdSendBytes[12] = rSpeedBytes2[0];
+                                }
+                            }
+                            else
+                            {
+                                cmdSendBytes[9] = 0;
+                            }
+
+                            if (Math.Abs(methods._angle[2]) < 61 && Math.Abs(methods._angle[3]) < 11)
+                            {
+                                mid_LSW = false;
+                                term_LSW = true;
+                            }
+                        }
+
+                        if (term_LSW == true && (Math.Abs(methods._angle[2]) > 5 || Math.Abs(methods._angle[3]) > 5))//左腿摆动相后期
+                        {
+
+                            if (Math.Abs(methods._angle[2]) > 5)//左腿从61°向6°伸直
+                            {
+                                cmdSendBytes[5] = 1;
+                                cmdSendBytes[6] = 1;
+                                cmdSendBytes[7] = rSpeedBytes1[1];
+                                cmdSendBytes[8] = rSpeedBytes1[0];
+
+                                if (Math.Abs(methods._angle[2]) < 15)
+                                {
+                                    cmdSendBytes[7] = rSpeedBytes2[1];
+                                    cmdSendBytes[8] = rSpeedBytes2[0];
+                                }
+                            }
+                            else
+                            {
+                                cmdSendBytes[5] = 0;
+                            }
+
+                            if (Math.Abs(methods._angle[3]) > 5)//右腿从11°向6°伸直
+                            {
+                                cmdSendBytes[9] = 1;
+                                cmdSendBytes[10] = 1;
+                                cmdSendBytes[11] = rSpeedBytes1[1];
+                                cmdSendBytes[12] = rSpeedBytes1[0];
+
+                                if (Math.Abs(methods._angle[3]) < 15)
+                                {
+                                    cmdSendBytes[11] = rSpeedBytes2[1];
+                                    cmdSendBytes[12] = rSpeedBytes2[0];
+                                }
+                            }
+                            else
+                            {
+                                cmdSendBytes[9] = 0;
+                            }
+
+                            if (Math.Abs(methods._angle[2]) < 6 && Math.Abs(methods._angle[3]) < 6)
+                            {
+                                term_LSW = false;
+                                DSt = true;
+                            }
+                        }
+
+                        if (DSt == true && Math.Abs(methods._angle[2]) < 10 && Math.Abs(methods._angle[3]) < 10)//右腿进入摆动相
+                            init_RSW = true;
+
 
                     }
                 }
