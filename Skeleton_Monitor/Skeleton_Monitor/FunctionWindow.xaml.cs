@@ -1030,7 +1030,7 @@ namespace Skeleton_Monitor
                         if (mid_LSW == true && (Math.Abs(methods._angle[2]) > 60 || Math.Abs(methods._angle[3]) > 10))//左腿摆动相中期
                         {
 
-                            if (mid_flag == false && Math.Abs(methods._angle[2]) < 80)//左腿从60°向79°弯曲
+                            if (mid_flag == false && Math.Abs(methods._angle[2]) < 80)//左腿从64°向79°弯曲
                             {
                                 cmdSendBytes[5] = 1;
                                 cmdSendBytes[6] = 1;
@@ -1087,6 +1087,7 @@ namespace Skeleton_Monitor
                             {
                                 mid_LSW = false;
                                 term_LSW = true;
+                                mid_flag = false;
                             }
                         }
 
@@ -1118,7 +1119,7 @@ namespace Skeleton_Monitor
                                 cmdSendBytes[11] = rSpeedBytes1[1];
                                 cmdSendBytes[12] = rSpeedBytes1[0];
 
-                                if (Math.Abs(methods._angle[3]) < 15)
+                                if (Math.Abs(methods._angle[3]) < 10)
                                 {
                                     cmdSendBytes[11] = rSpeedBytes2[1];
                                     cmdSendBytes[12] = rSpeedBytes2[0];
@@ -1136,10 +1137,213 @@ namespace Skeleton_Monitor
                             }
                         }
 
+
                         if (DSt == true && Math.Abs(methods._angle[2]) < 10 && Math.Abs(methods._angle[3]) < 10)//右腿进入摆动相
                             init_RSW = true;
 
 
+                        if (init_RSW == true && (Math.Abs(methods._angle[3]) < 65 || Math.Abs(methods._angle[2]) < 25))//右腿摆动相前期
+                        {
+
+                            if (Math.Abs(methods._angle[2]) < 25)//左腿从0°~10°向24°弯曲
+                            {
+                                cmdSendBytes[5] = 1;
+                                cmdSendBytes[6] = 1;
+                                cmdSendBytes[7] = rSpeedBytes1[1];
+                                cmdSendBytes[8] = rSpeedBytes1[0];
+
+                                if (Math.Abs(methods._angle[2]) > 15)
+                                {
+                                    cmdSendBytes[7] = rSpeedBytes2[1];
+                                    cmdSendBytes[8] = rSpeedBytes2[0];
+                                }
+                            }
+                            else//保护机制，下同，一般不会触发
+                            {
+                                cmdSendBytes[5] = 0;
+                            }
+
+                            if (Math.Abs(methods._angle[3]) < 65)//右腿从0°~10°向64°弯曲
+                            {
+                                cmdSendBytes[9] = 1;
+                                cmdSendBytes[10] = 0;
+                                cmdSendBytes[11] = rSpeedBytes1[1];
+                                cmdSendBytes[12] = rSpeedBytes1[0];
+
+                                if (Math.Abs(methods._angle[3]) > 55)
+                                {
+                                    cmdSendBytes[11] = rSpeedBytes2[1];
+                                    cmdSendBytes[12] = rSpeedBytes2[0];
+                                }
+                            }
+                            else
+                            {
+                                cmdSendBytes[9] = 0;
+                            }
+
+                            if (Math.Abs(methods._angle[2]) > 24 && Math.Abs(methods._angle[3]) > 64)
+                            {
+                                init_RSW = false;
+                                mid_RSW = true;
+                            }
+                        }
+
+
+                        if (mid_RSW == true && (Math.Abs(methods._angle[3]) > 60 || Math.Abs(methods._angle[2]) > 10))//右腿摆动相中期
+                        {
+
+                            if (mid_flag == false && Math.Abs(methods._angle[3]) < 80)//右腿从64°向79°弯曲
+                            {
+                                cmdSendBytes[9] = 1;
+                                cmdSendBytes[10] = 0;
+                                cmdSendBytes[11] = rSpeedBytes1[1];
+                                cmdSendBytes[12] = rSpeedBytes1[0];
+
+                                if (Math.Abs(methods._angle[3]) > 70)
+                                {
+                                    cmdSendBytes[11] = rSpeedBytes2[1];
+                                    cmdSendBytes[12] = rSpeedBytes2[0];
+                                }
+
+                                if (Math.Abs(methods._angle[3]) > 79)
+                                    mid_flag = true;
+                            }
+
+                            if (mid_flag == true && Math.Abs(methods._angle[3]) > 60)//右腿从79°到61°伸直
+                            {
+                                cmdSendBytes[9] = 1;
+                                cmdSendBytes[10] = 1;
+                                cmdSendBytes[11] = rSpeedBytes1[1];
+                                cmdSendBytes[12] = rSpeedBytes1[0];
+
+                                if (Math.Abs(methods._angle[3]) < 70)
+                                {
+                                    cmdSendBytes[11] = rSpeedBytes2[1];
+                                    cmdSendBytes[12] = rSpeedBytes2[0];
+                                }
+                            }
+                            else
+                            {
+                                cmdSendBytes[9] = 0;
+                            }
+
+                            if (Math.Abs(methods._angle[2]) > 10)//左腿从24°向11°伸直
+                            {
+                                cmdSendBytes[5] = 1;
+                                cmdSendBytes[6] = 0;
+                                cmdSendBytes[7] = rSpeedBytes1[1];
+                                cmdSendBytes[8] = rSpeedBytes1[0];
+
+                                if (Math.Abs(methods._angle[2]) < 20)
+                                {
+                                    cmdSendBytes[7] = rSpeedBytes2[1];
+                                    cmdSendBytes[8] = rSpeedBytes2[0];
+                                }
+                            }
+                            else
+                            {
+                                cmdSendBytes[5] = 0;
+                            }
+
+                            if (Math.Abs(methods._angle[3]) < 61 && Math.Abs(methods._angle[2]) < 11)
+                            {
+                                mid_RSW = false;
+                                term_RSW = true;
+                                mid_flag = false;
+                            }
+                        }
+
+                        if (term_RSW == true && (Math.Abs(methods._angle[2]) > 5 || Math.Abs(methods._angle[3]) > 5))//右腿摆动相后期
+                        {
+
+                            if (Math.Abs(methods._angle[3]) > 5)//右腿从61°向6°伸直
+                            {
+                                cmdSendBytes[9] = 1;
+                                cmdSendBytes[10] = 1;
+                                cmdSendBytes[11] = rSpeedBytes1[1];
+                                cmdSendBytes[12] = rSpeedBytes1[0];
+
+                                if (Math.Abs(methods._angle[3]) < 15)
+                                {
+                                    cmdSendBytes[11] = rSpeedBytes2[1];
+                                    cmdSendBytes[12] = rSpeedBytes2[0];
+                                }
+                            }
+                            else
+                            {
+                                cmdSendBytes[9] = 0;
+                            }
+
+                            if (Math.Abs(methods._angle[2]) > 5)//左腿从11°向6°伸直
+                            {
+                                cmdSendBytes[5] = 1;
+                                cmdSendBytes[6] = 1;
+                                cmdSendBytes[7] = rSpeedBytes1[1];
+                                cmdSendBytes[8] = rSpeedBytes1[0];
+
+                                if (Math.Abs(methods._angle[2]) < 15)
+                                {
+                                    cmdSendBytes[7] = rSpeedBytes2[1];
+                                    cmdSendBytes[8] = rSpeedBytes2[0];
+                                }
+                            }
+                            else
+                            {
+                                cmdSendBytes[5] = 0;
+                            }
+
+                            if (Math.Abs(methods._angle[2]) < 6 && Math.Abs(methods._angle[3]) < 6)
+                            {
+                                term_RSW = false;
+                                DSt = false;
+                            }
+                        }
+
+                        try
+                        {
+                            methods.SendControlCMD(cmdSendBytes);
+                        }
+                        catch
+                        {
+                            //MessageBox.Show("未正确选择电机串口!");
+                            statusBar.Background = new SolidColorBrush(Color.FromArgb(255, 150, 50, 50));
+                            statusInfoTextBlock.Text = "未正确选择电机串口！请选择正确电机串口后重新按下【动作开始】按钮";
+                            Out_textBox.Text = "未正确选择电机串口！请选择正确电机串口后重新按下【动作开始】按钮";
+
+                            IsTrueClickDown = false;
+                            ActionStart_button.Content = "动作开始";
+                            ActionStart_button.IsEnabled = true;
+                            ActionStop_button.IsEnabled = false;
+                        }
+                    }
+
+                    else
+                    {
+                        cmdSendBytes[5] = 0;
+                        cmdSendBytes[6] = 0;
+                        cmdSendBytes[7] = 0;
+                        cmdSendBytes[8] = 0;
+                        cmdSendBytes[9] = 0;
+                        cmdSendBytes[10] = 0;
+                        cmdSendBytes[11] = 0;
+                        cmdSendBytes[12] = 0;
+
+                        try
+                        {
+                            methods.SendControlCMD(cmdSendBytes);
+                        }
+                        catch
+                        {
+                            //MessageBox.Show("未正确选择电机串口!");
+                            statusBar.Background = new SolidColorBrush(Color.FromArgb(255, 150, 50, 50));
+                            statusInfoTextBlock.Text = "未正确选择电机串口！请选择正确电机串口后重新按下【动作开始】按钮";
+                            Out_textBox.Text = "未正确选择电机串口！请选择正确电机串口后重新按下【动作开始】按钮";
+
+                            IsTrueClickDown = false;
+                            ActionStart_button.Content = "动作开始";
+                            ActionStart_button.IsEnabled = true;
+                            ActionStop_button.IsEnabled = false;
+                        }
                     }
                 }
             }
