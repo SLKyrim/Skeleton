@@ -88,7 +88,7 @@ namespace Skeleton_Monitor
                                 enable[f] = bytes[f * 6 + 1];
                                 direction[f] = bytes[f * 6 + 2];
                                 speed[f] = bytes[f * 6 + 3] * 256 + bytes[f * 6 + 4];
-                                if (speed[f] >= 2048) speed[f] = (speed[f] - 2048) / 4096 * 5180;          //实际范围-2590~2590,而对应范围是0~4096，故中间值位2048
+                                if (speed[f] >= 2048) speed[f] = (speed[f] - 2048) / 4096 * 5180;          //实际范围-2590~2590r/min,而对应范围是0~4096，故中间值位2048
                                 else speed[f] = (2048 - speed[f]) / 4096 * -5180;
                                 current[f] = bytes[f * 6 + 5] * 256 + bytes[f * 6 + 6];
                                 if (current[f] >= 2048) current[f] = (current[f] - 2048) / 4096 * 30;

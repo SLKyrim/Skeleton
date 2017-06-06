@@ -318,24 +318,24 @@ namespace Skeleton_Monitor
         public void ShowSenderTimer(object sender, EventArgs e)//电机状态，压力，倾角，角度传感器状态的文本输出
         {
             //电机1的文本框输出
-            Motor1_enable_textBox.Text = methods.enable[0].ToString();             //使能
-            Motor1_direction_textBox.Text = methods.direction[0].ToString("F");    //方向；"F"格式，默认保留两位小数
-            Motor1_speed_textBox.Text = Math.Abs(methods.speed[0]).ToString("F");            //转速
+            Motor1_enable_textBox.Text = methods.enable[0].ToString();                       //使能
+            Motor1_direction_textBox.Text = methods.direction[0].ToString("F");              //方向；"F"格式，默认保留两位小数
+            Motor1_speed_textBox.Text = methods.speed[0].ToString("F");                      //转速：-2590~2590r/min
             Motor1_current_textBox.Text = Math.Abs(methods.current[0]).ToString("F");        //电流
             //电机2的文本框输出
             Motor2_enable_textBox.Text = methods.enable[1].ToString();
             Motor2_direction_textBox.Text = methods.direction[1].ToString("F");
-            Motor2_speed_textBox.Text = Math.Abs(methods.speed[1]).ToString("F");
+            Motor2_speed_textBox.Text = methods.speed[1].ToString("F");
             Motor2_current_textBox.Text = Math.Abs(methods.current[1]).ToString("F");
             //电机3的文本框输出
             Motor3_enable_textBox.Text = methods.enable[2].ToString();
             Motor3_direction_textBox.Text = methods.direction[2].ToString("F");
-            Motor3_speed_textBox.Text = Math.Abs(methods.speed[2]).ToString("F");
+            Motor3_speed_textBox.Text = methods.speed[2].ToString("F");
             Motor3_current_textBox.Text = Math.Abs(methods.current[2]).ToString("F");
             //电机4的文本框输出
             Motor4_enable_textBox.Text = methods.enable[3].ToString();
             Motor4_direction_textBox.Text = methods.direction[3].ToString("F");
-            Motor4_speed_textBox.Text = Math.Abs(methods.speed[3]).ToString("F");
+            Motor4_speed_textBox.Text = methods.speed[3].ToString("F");
             Motor4_current_textBox.Text = Math.Abs(methods.current[3]).ToString("F");
 
             //8个压力传感器的文本框输出
@@ -1348,5 +1348,6 @@ namespace Skeleton_Monitor
                 }
             }
         }
+
     }
 }
