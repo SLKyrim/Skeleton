@@ -198,7 +198,9 @@
                         <GroupBox Header="动作模式选择面板" DockPanel.Dock="Right" Margin="5,0,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
                             <DockPanel>
                                 <Button x:Name="ActionPick_button" IsEnabled="True" DockPanel.Dock="Top" Content="拾取重物"  Margin="3" Width="88" Click="ActionPickButton_Click"/>
-                                <Button x:Name="ActionWalk_button" IsEnabled="True" DockPanel.Dock="Bottom" Content="行走"  Margin="3" Width="88" Click="ActionWalkButton_Click"/>
+                                <Button x:Name="ActionWalk_button" IsEnabled="True" DockPanel.Dock="Top" Content="行走"  Margin="3" Width="88" Click="ActionWalkButton_Click"/>
+                                <Button x:Name="ActionWalkDo_button" IsEnabled="False" DockPanel.Dock="Top" Content="行走执行"  Margin="3" Width="88" Click="ActionWalkButtonDo_Click"/>
+                                <Button x:Name="ActionWalkEnd_button" IsEnabled="False" DockPanel.Dock="Bottom" Content="行走结束"  Margin="3" Width="88" Click="ActionWalkButtonEnd_Click"/>
                             </DockPanel>
                         </GroupBox>
                     </DockPanel>
@@ -286,16 +288,16 @@
                 </GroupBox>
                 <GroupBox Header="角度传感器信息" DockPanel.Dock="Top" Margin="5,5,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
                     <DockPanel>
-                        <GroupBox Header="左手" DockPanel.Dock="Left" Margin="5,5,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
+                        <GroupBox Header="左手0增大" DockPanel.Dock="Left" Margin="5,5,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
                             <TextBox x:Name="Angle1_Textbox" Width="80" IsReadOnly="True" Height="25" Margin="0,6,1,0"  VerticalAlignment="Top" Text="0" FontSize="15"/>
                         </GroupBox>
-                        <GroupBox Header="右手" DockPanel.Dock="Left" Margin="5,5,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
+                        <GroupBox Header="右手0增大" DockPanel.Dock="Left" Margin="5,5,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
                             <TextBox x:Name="Angle2_Textbox" Width="80" IsReadOnly="True" Height="25" Margin="0,6,1,0"  VerticalAlignment="Top" Text="0" FontSize="15"/>
                         </GroupBox>
-                        <GroupBox Header="左腿" DockPanel.Dock="Left" Margin="5,5,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
+                        <GroupBox Header="左腿0增大" DockPanel.Dock="Left" Margin="5,5,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
                             <TextBox x:Name="Angle3_Textbox" Width="80" IsReadOnly="True" Height="25" Margin="0,6,1,0"  VerticalAlignment="Top" Text="0" FontSize="15"/>
                         </GroupBox>
-                        <GroupBox Header="右腿" DockPanel.Dock="Left" Margin="5,5,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
+                        <GroupBox Header="右腿0增大" DockPanel.Dock="Left" Margin="5,5,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
                             <TextBox x:Name="Angle4_Textbox" Width="80" IsReadOnly="True" Height="25" Margin="0,6,1,0"  VerticalAlignment="Top" Text="0" FontSize="15"/>
                         </GroupBox>
                         <GroupBox Header="角度传感器5" DockPanel.Dock="Left" Margin="5,5,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
@@ -304,7 +306,7 @@
                         <GroupBox Header="角度传感器6" DockPanel.Dock="Left" Margin="5,5,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
                             <TextBox x:Name="Angle6_Textbox" Width="80" IsReadOnly="True" Height="25" Margin="0,6,1,0"  VerticalAlignment="Top" Text="0" FontSize="15"/>
                         </GroupBox>
-                        <Button x:Name="AngleInit_button" DockPanel.Dock="Top" Content="角度初始化"  Margin="0,3,0,0" Width="88" Click="AngleInitializeButton_Click"/>
+                        <Button x:Name="AngleInit_button" DockPanel.Dock="Top" IsEnabled="False" Content="角度初始化"  Margin="0,3,0,0" Width="88" Click="AngleInitializeButton_Click"/>
                         <Button x:Name="ActionStart_button" DockPanel.Dock="Top" IsEnabled="False" Content="动作开始"  Margin="0,3,0,0" Width="88" Click="ActionStartButton_Click"/>
                         <Button x:Name="ActionStop_button" DockPanel.Dock="Top" IsEnabled="False" Content="动作停止"  Margin="0,3,0,0" Width="88"   Click="ActionStopButton_Click"/>
                     </DockPanel>

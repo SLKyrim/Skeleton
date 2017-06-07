@@ -214,12 +214,12 @@ namespace Skeleton_Monitor
                     {
                         if(_angleInitialization[i] < 290)
                         {
-                            _angle[i] = _angle[i] - _angleInitialization[i];//角度初始化后的_angleInitialization[i]基本和_angle[i]相等，这样获得的_angle[i]即为初始值0
+                            _angle[i] = _angle[i] - _angleInitialization[i];      //_angleInitialization[i]为开机时角度传感器的实时角度值，_angle[i]为开机后角度传感器实时角度值
                         }
-                        else//当角度传感器可能超过360°而突变为0°时
+                        else//当角度增大的角度传感器可能超过360°而突变为0°时
                         {
-                            if (_angle[i] - _angleInitialization[i] > -5)//理论是0，但误差范围可以给大些，转过360°后该值会突变成非常小的负数（-300°左右）
-                                _angle[i] = _angle[i] - _angleInitialization[i];
+                            if (_angle[i] - _angleInitialization[i] > -250)       
+                                _angle[i] = _angle[i] - _angleInitialization[i];  //角度传感器初始角度大于290且为减小的角按此算法也会发生角度突变：解决：阈值从-5设为-250（因为增大的角会突变到至多-290）
                             else
                                 _angle[i] = _angle[i] + auxiliary_angle[i];
                         }
