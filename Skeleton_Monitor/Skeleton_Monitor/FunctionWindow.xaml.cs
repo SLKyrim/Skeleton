@@ -597,14 +597,17 @@ namespace Skeleton_Monitor
             isActionPick = false;
             isActionWalk = false;
 
-            //DSt = false;        //左右摆动相中间过渡相
-            //init_LSW = false;   //左腿摆动相前期
-            //mid_LSW = false;    //左腿摆动相中期
-            //term_LSW = false;   //左腿摆动相后期
-            //init_RSW = false;   //右腿摆动相前期
-            //mid_RSW = false;    //右腿摆动相中期
-            //term_RSW = false;   //右腿摆动相后期
-            //mid_flag = false;
+            //避免重复进行行走动作时出错
+            DSt_left = false;         //进入左腿摆动相的过渡相
+            DSt_right = false;        //进入右腿摆动相的过渡相
+            init_LSW = false;         //左腿摆动相前期
+            mid_LSW = false;          //左腿摆动相中期
+            term_LSW = false;         //左腿摆动相后期
+            init_RSW = false;         //右腿摆动相前期
+            mid_RSW = false;          //右腿摆动相中期
+            term_RSW = false;         //右腿摆动相后期
+            mid_flag = false;
+            do_walk = false;
 
             ActionWalkDo_button.IsEnabled = false;
             ActionWalkEnd_button.IsEnabled = false;
@@ -635,11 +638,13 @@ namespace Skeleton_Monitor
         private void ActionWalkButtonDo_Click(object sender, RoutedEventArgs e)//点击【行走执行】按钮时执行
         {
             do_walk = true;
+            ActionStop_button.IsEnabled = false;
         }
 
         private void ActionWalkButtonEnd_Click(object sender, RoutedEventArgs e)//点击【行走结束】按钮时执行
         {
             do_walk = false;
+            ActionStop_button.IsEnabled = true;
         }
         #endregion
 
@@ -1008,17 +1013,23 @@ namespace Skeleton_Monitor
                     //if (methods.tempPress[7] > 500)
                     if(do_walk)
                     {
-
+                        //2017-6-8问题总结：
+                        //电机转速调大时走几个周期会往前弯曲，估计是绝对值的问题，后续控制应该用实际值
+                        //角度有回程差，走了几个周期后伸直时会越来越往前拐，估计也是绝对值的问题。
                         int rSpeed1 = 3000;//动作开始电机转速
                         int rSpeed2 = 2500;//动作结束前降速缓冲
 
                         byte[] rSpeedBytes1 = BitConverter.GetBytes(rSpeed1);
                         byte[] rSpeedBytes2 = BitConverter.GetBytes(rSpeed2);
 
-                        if (DSt_left == false && Math.Abs(methods._angle[2]) < 5 && Math.Abs(methods._angle[3]) < 5)//先迈右腿，左腿进入摆动相
-                            init_LSW = true; 
+                        //先迈右腿，左腿进入摆动相
+                        //if (DSt_left == false && Math.Abs(methods._angle[2]) < 10 && Math.Abs(methods._angle[3]) < 10)
+                        if (DSt_left == false)
+                            init_LSW = true;
 
-                        if(init_LSW == true && (Math.Abs(methods._angle[2]) < 45 || Math.Abs(methods._angle[3]) < 15))//左腿摆动相前期
+                        //左腿摆动相前期
+                        //if (init_LSW == true && (Math.Abs(methods._angle[2]) < 45 || Math.Abs(methods._angle[3]) < 15))
+                        if (init_LSW == true)
                         {
                             DSt_left = true;
 
@@ -1062,16 +1073,15 @@ namespace Skeleton_Monitor
                             {
                                 init_LSW = false;
                                 mid_LSW = true;
-          
-                                //mid_flag = false;
                             }
                         }
 
-
-                        if (mid_LSW == true && (Math.Abs(methods._angle[2]) > 40 || Math.Abs(methods._angle[3]) > 5))//左腿摆动相中期
+                        //左腿摆动相中期
+                        //if (mid_LSW == true && (Math.Abs(methods._angle[2]) > 40 || Math.Abs(methods._angle[3]) > 5
+                        if (mid_LSW == true)
                         {
 
-                            if (mid_flag == false && Math.Abs(methods._angle[2]) < 55)//左腿从44°向54°弯曲
+                            if (mid_flag == false && Math.Abs(methods._angle[2]) < 90)//左腿0前1后从44°向54°弯曲
                             {
                                 cmdSendBytes[5] = 1;
                                 cmdSendBytes[6] = 1;
@@ -1084,14 +1094,14 @@ namespace Skeleton_Monitor
                                     cmdSendBytes[8] = rSpeedBytes2[0];
                                 }
 
-                                if (Math.Abs(methods._angle[2]) > 54)
+                                if (Math.Abs(methods._angle[2]) > 54)//测试时左腿停在57°左右，推测左腿角度直接从54°以下跳到55°以上，故把阈值从55改为80
                                     mid_flag = true;
 
                             }
 
                             else
                             {
-                                if (mid_flag == true && Math.Abs(methods._angle[2]) > 40)//左腿从54°到41°伸直
+                                if (mid_flag == true && Math.Abs(methods._angle[2]) > 40)//左腿0前1后从54°到41°伸直
                                 {
                                     cmdSendBytes[5] = 1;
                                     cmdSendBytes[6] = 0;
@@ -1111,7 +1121,7 @@ namespace Skeleton_Monitor
                             }
 
 
-                            if (Math.Abs(methods._angle[3]) > 5)//右腿0后1前从14°向6°伸直
+                            if (Math.Abs(methods._angle[3]) > 10)//右腿0后1前从14°向11°伸直
                             {
                                 cmdSendBytes[9] = 1;
                                 cmdSendBytes[10] = 1;
@@ -1129,7 +1139,7 @@ namespace Skeleton_Monitor
                                 cmdSendBytes[9] = 0;
                             }
 
-                            if (Math.Abs(methods._angle[2]) < 41 && Math.Abs(methods._angle[3]) < 6)
+                            if (Math.Abs(methods._angle[2]) < 41 && Math.Abs(methods._angle[3]) < 11)
                             {
                                 mid_LSW = false;
                                 term_LSW = true;
@@ -1137,10 +1147,12 @@ namespace Skeleton_Monitor
                             }
                         }
 
-                        if (term_LSW == true && (Math.Abs(methods._angle[2]) > 1 || Math.Abs(methods._angle[3]) > 1))//左腿摆动相后期
+                        //左腿摆动相后期
+                        //if (term_LSW == true && (Math.Abs(methods._angle[2]) > 1 || Math.Abs(methods._angle[3]) > 1))
+                        if (term_LSW == true)
                         {
 
-                            if (Math.Abs(methods._angle[2]) > 1)//左腿0前1后从41°向2°伸直
+                            if (Math.Abs(methods._angle[2]) > 3)//左腿0前1后从41°向4°伸直
                             {
                                 cmdSendBytes[5] = 1;
                                 cmdSendBytes[6] = 0;
@@ -1158,7 +1170,7 @@ namespace Skeleton_Monitor
                                 cmdSendBytes[5] = 0;
                             }
 
-                            if (Math.Abs(methods._angle[3]) > 1)//右腿从6°向2°伸直
+                            if (Math.Abs(methods._angle[3]) > 3)//右腿0后1前从11°向4°伸直
                             {
                                 cmdSendBytes[9] = 1;
                                 cmdSendBytes[10] = 1;
@@ -1176,19 +1188,21 @@ namespace Skeleton_Monitor
                                 cmdSendBytes[9] = 0;
                             }
 
-                            if (Math.Abs(methods._angle[2]) < 2 && Math.Abs(methods._angle[3]) < 2)
+                            if (Math.Abs(methods._angle[2]) < 4 && Math.Abs(methods._angle[3]) < 4)
                             {
                                 term_LSW = false;
                                 DSt_right = true;
                             }
                         }
 
-
-                        if (DSt_right == true && Math.Abs(methods._angle[2]) < 10 && Math.Abs(methods._angle[3]) < 10)//右腿进入摆动相
+                        //右腿进入摆动相
+                        //if (DSt_right == true && Math.Abs(methods._angle[2]) < 10 && Math.Abs(methods._angle[3]) < 10)
+                        if (DSt_right == true)
                             init_RSW = true;
 
-
-                        if (init_RSW == true && (Math.Abs(methods._angle[3]) < 30 || Math.Abs(methods._angle[2]) < 25))//右腿摆动相前期
+                        //右腿摆动相前期
+                        //if (init_RSW == true && (Math.Abs(methods._angle[3]) < 30 || Math.Abs(methods._angle[2]) < 25))
+                        if (init_RSW == true)
                         {
                             DSt_right = false;
                             //此处是因为右腿和左腿弯曲同样角度而右腿实际弯曲的角度更大
@@ -1236,11 +1250,12 @@ namespace Skeleton_Monitor
                             }
                         }
 
-
-                        if (mid_RSW == true && (Math.Abs(methods._angle[3]) > 40 || Math.Abs(methods._angle[2]) > 10))//右腿摆动相中期
+                        //右腿摆动相中期
+                        //if (mid_RSW == true && (Math.Abs(methods._angle[3]) > 40 || Math.Abs(methods._angle[2]) > 10))
+                        if (mid_RSW == true)
                         {
 
-                            if (mid_flag == false && Math.Abs(methods._angle[3]) < 40)//右腿0后1前从29°向39°弯曲
+                            if (mid_flag == false && Math.Abs(methods._angle[3]) < 90)//右腿0后1前从29°向39°弯曲
                             {
                                 cmdSendBytes[9] = 1;
                                 cmdSendBytes[10] = 0;
@@ -1278,7 +1293,7 @@ namespace Skeleton_Monitor
                             }
              
 
-                            if (Math.Abs(methods._angle[2]) > 10)//左腿从24°向11°伸直
+                            if (Math.Abs(methods._angle[2]) > 10)//左腿0前1后从24°向11°伸直
                             {
                                 cmdSendBytes[5] = 1;
                                 cmdSendBytes[6] = 0;
@@ -1304,10 +1319,12 @@ namespace Skeleton_Monitor
                             }
                         }
 
-                        if (term_RSW == true && (Math.Abs(methods._angle[2]) > 1 || Math.Abs(methods._angle[3]) > 1))//右腿摆动相后期
+                        //右腿摆动相后期
+                        //if (term_RSW == true && (Math.Abs(methods._angle[2]) > 1 || Math.Abs(methods._angle[3]) > 1))
+                        if (term_RSW == true)
                         {
 
-                            if (Math.Abs(methods._angle[3]) > 1)//右腿从25°向2°伸直
+                            if (Math.Abs(methods._angle[3]) > 3)//右腿0后1前从25°向4°伸直
                             {
                                 cmdSendBytes[9] = 1;
                                 cmdSendBytes[10] = 1;
@@ -1325,7 +1342,7 @@ namespace Skeleton_Monitor
                                 cmdSendBytes[9] = 0;
                             }
 
-                            if (Math.Abs(methods._angle[2]) > 1)//左腿从11°向2°伸直
+                            if (Math.Abs(methods._angle[2]) > 3)//左腿0前1后从11°向4°伸直
                             {
                                 cmdSendBytes[5] = 1;
                                 cmdSendBytes[6] = 0;
@@ -1343,7 +1360,7 @@ namespace Skeleton_Monitor
                                 cmdSendBytes[5] = 0;
                             }
 
-                            if (Math.Abs(methods._angle[2]) < 2 && Math.Abs(methods._angle[3]) < 2)
+                            if (Math.Abs(methods._angle[2]) < 4 && Math.Abs(methods._angle[3]) < 4)
                             {
                                 term_RSW = false;
                                 DSt_left = false;
