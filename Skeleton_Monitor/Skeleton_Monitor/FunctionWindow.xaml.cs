@@ -1422,8 +1422,8 @@ namespace Skeleton_Monitor
                     if (do_walk)
                     {
    
-                        int rSpeed1 = 3000;//动作开始电机转速
-                        int rSpeed2 = 2500;//动作结束前降速缓冲
+                        int rSpeed1 = 5000;//动作开始电机转速
+                        int rSpeed2 = 4500;//动作结束前降速缓冲
 
                         byte[] rSpeedBytes1 = BitConverter.GetBytes(rSpeed1);
                         byte[] rSpeedBytes2 = BitConverter.GetBytes(rSpeed2);
@@ -1443,7 +1443,7 @@ namespace Skeleton_Monitor
                         //左腿摆动相前期
                         //左腿从0°向-44°弯曲
                         //右腿从0°向14°弯曲
-                        if (init_LSW == true && (methods._angle[2] > -45 || methods._angle[3] < 15))
+                        if (init_LSW == true)
                         {
                    
                             DSt_left = true;
@@ -1495,7 +1495,7 @@ namespace Skeleton_Monitor
                         //左腿摆动相中期
                         //左腿从-44°向-54°弯曲，再向-41°伸直
                         //右腿从14°向11°伸直
-                        if (mid_LSW == true && (methods._angle[2] > -40 || methods._angle[3] > 10))
+                        if (mid_LSW == true)
                         {
                             status = 3;
 
@@ -1562,7 +1562,7 @@ namespace Skeleton_Monitor
                         //左腿摆动相后期
                         //左腿从-41°向0°伸直
                         //右腿从11°向0°伸直
-                        if (term_LSW == true && (methods._angle[2] < 0 || methods._angle[3] > 0))
+                        if (term_LSW == true)
                         {
                             status = 4;
 
@@ -1620,7 +1620,7 @@ namespace Skeleton_Monitor
                         //右腿摆动相前期
                         //左腿从0°向-14°弯曲
                         //右腿从0°向44°弯曲
-                        if (init_RSW == true && (methods._angle[2] > -15 || methods._angle[3] < 45))
+                        if (init_RSW == true)
                         {
                             DSt_right = false;
                             status = 6;
@@ -1671,7 +1671,7 @@ namespace Skeleton_Monitor
                         //右腿摆动相中期
                         //左腿从-14°向-11°伸直
                         //右腿从44°向54°弯曲，再向41°伸直
-                        if (mid_RSW == true && (methods._angle[2] < -10 || methods._angle[3] > 40))
+                        if (mid_RSW == true)
                         {
                             status = 7;
 
@@ -1734,7 +1734,7 @@ namespace Skeleton_Monitor
                         }
 
                         //右腿摆动相后期
-                        if (term_RSW == true && (methods._angle[2] < 0 || methods._angle[3] > 0))
+                        if (term_RSW == true)
                         {
                             status = 8;
 
