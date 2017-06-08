@@ -290,6 +290,10 @@ namespace Skeleton_Monitor
                 //ShowTimer1.Stop();
                 angle_SerialPort.Close();
             }
+
+            byte[] clearBytes = new byte[19] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+            SendControlCMD(clearBytes);//避免不规范操作造成再开机时电机自启动
+
             return true;
         }
 
