@@ -554,7 +554,10 @@ namespace Skeleton_Monitor
             //时间触发 为真
 
             statusBar.Background = new SolidColorBrush(Color.FromArgb(255, 0, 122, 204));
-            statusInfoTextBlock.Text = "动作已开始!";
+            if(isActionPick)
+                statusInfoTextBlock.Text = "【拾取重物】动作已开始!";
+            if(isActionWalk)
+                statusInfoTextBlock.Text = "【行走】动作已开始!";
 
             ActionStart_button.Content = "已开始";
             ActionStop_button.Content = "动作停止";
@@ -566,8 +569,16 @@ namespace Skeleton_Monitor
             ActionStart_button.IsEnabled = false;
             ActionStop_button.IsEnabled = true;
 
-            ActionWalkDo_button.IsEnabled = true;
-            ActionWalkEnd_button.IsEnabled = true;
+            if(isActionWalk)
+            {
+                ActionWalkDo_button.IsEnabled = true;
+                ActionWalkEnd_button.IsEnabled = true;
+            }
+            else
+            {
+                ActionWalkDo_button.IsEnabled = false;
+                ActionWalkEnd_button.IsEnabled = false;
+            }
         }
 
         private void ActionStopButton_Click(object sender, RoutedEventArgs e)//点击【动作停止】按钮时执行
@@ -587,6 +598,11 @@ namespace Skeleton_Monitor
             ActionStop_button.IsEnabled = false;
             ActionPick_button.IsEnabled = true;
             ActionWalk_button.IsEnabled = true;
+
+            IsTrueStanduping = false;
+            IsTrueSquatting = false;
+            istrueX = false;
+            istrueY = false;
 
             isActionPick = false;
             isActionWalk = false;
@@ -655,34 +671,51 @@ namespace Skeleton_Monitor
                 //检测【角度初始化】按扭是否按下
                 if (IsTrueForefootZero)
                 {
+                    int rSpeed1 = 3000;
+                    int rSpeed2 = 2500;
+
+                    byte[] rSpeedBytes1 = BitConverter.GetBytes(rSpeed1);
+                    byte[] rSpeedBytes2 = BitConverter.GetBytes(rSpeed2);
+
                     //下蹲动作执行..条件：检测后背倾角变化；非站立；非起立中
                     if (!IsTrueStanduping)
                     {
 
                         IsTrueSquatting = true; //正在下蹲中
 
-                        //如果腿部角度未达到阈值
+                        //倾角传感器触发下蹲动作
                         if (Math.Abs(methods.dirangle[7]) < 75 && (Math.Abs(methods._angle[2]) < 5 || Math.Abs(methods._angle[3]) < 5))//后背陀螺仪y轴小于75°(初始是90°摆放)；左腿和右腿角度传感器小于5°（说明角度初始化完成）时执行
                         {
                             istrueX = true;
                         }
-                        if (istrueX && (Math.Abs(methods._angle[2]) < 40 || Math.Abs(methods._angle[3]) < 20))//初始化完成且左腿没转到60°或右腿没转到40°时执行；此处右腿40°比左腿60°幅度还稍大，故不可设置成相同角度，原因未知
+
+                        //if(istrueX && (methods._angle[2] > -60 || methods._angle[3] < 40))
+                        //{
+                        //    cmdSendBytes[1] = 1;
+                        //    cmdSendBytes[2] = 1;
+                        //    cmdSendBytes[3] = rSpeedBytes1[1];
+                        //    cmdSendBytes[4] = rSpeedBytes1[0];
+                        //}
+                        //else
+                        //{
+                        //    cmdSendBytes[1] = 0;
+                        //}
+
+                        //下蹲动作
+                        //相同角度下右腿弯曲幅度较大
+                        //左腿从0°向-60°弯曲
+                        //右腿从0°向40°弯曲
+                        //左手从60°向0°伸直 或 保持0°不变
+                        //右手从-60°向0°伸直 或 保持0°不变
+                        if (istrueX && (methods._angle[2] > -60 || methods._angle[3] < 40))
                         {
-                            int rSpeed1 = 3000;//动作开始电机转速
-                            int rSpeed2 = 2500;//动作结束前降速缓冲
-
-
-                            byte[] rSpeedBytes1 = BitConverter.GetBytes(rSpeed1);
-                            byte[] rSpeedBytes2 = BitConverter.GetBytes(rSpeed2);
-                            //腿部电机控制
-
-                            if (Math.Abs(methods._angle[2]) < 40)//左腿电机2控制
+                            if (methods._angle[2] > -60)//左腿0前1后从0°向-60°弯曲
                             {
                                 cmdSendBytes[5] = 1;//电机2使能
                                 cmdSendBytes[6] = 1;//电机2方向
                                 cmdSendBytes[7] = rSpeedBytes1[1];//电机2转速高位
                                 cmdSendBytes[8] = rSpeedBytes1[0];//电机2转速地位 (范围1800-16200）对应速度范围（0-2590r/min）
-                                if (Math.Abs(methods._angle[2]) > 30)//左腿电机快转到位时电机降速缓冲
+                                if (methods._angle[2] < -50)//左腿电机快转到位时电机降速缓冲
                                 {
                                     cmdSendBytes[7] = rSpeedBytes2[1];
                                     cmdSendBytes[8] = rSpeedBytes2[0];
@@ -691,17 +724,15 @@ namespace Skeleton_Monitor
                             else//左腿已转到位，电机2停止
                             {
                                 cmdSendBytes[5] = 0;
-                                cmdSendBytes[6] = 0;
-                                cmdSendBytes[7] = 0;
-                                cmdSendBytes[8] = 0;
                             }
-                            if (Math.Abs(methods._angle[3]) < 20)//右腿电机3控制
+
+                            if (methods._angle[3] < 40)//右腿0后1前从0°向40°弯曲
                             {
                                 cmdSendBytes[9] = 1; //电机3使能
                                 cmdSendBytes[10] = 0;//电机3方向
                                 cmdSendBytes[11] = rSpeedBytes1[1];//电机3转速高位
                                 cmdSendBytes[12] = rSpeedBytes1[0];//电机3转速地位 (范围1800-16200）对应速度范围（0-2590r/min）
-                                if (Math.Abs(methods._angle[3]) > 10)//右腿电机快转到位时电机降速至3000
+                                if (methods._angle[3] > 30)
                                 {
                                     cmdSendBytes[11] = rSpeedBytes2[1];
                                     cmdSendBytes[12] = rSpeedBytes2[0];
@@ -710,15 +741,11 @@ namespace Skeleton_Monitor
                             else//右腿已转到位，电机3停止
                             {
                                 cmdSendBytes[9] = 0;
-                                cmdSendBytes[10] = 0;
-                                cmdSendBytes[11] = 0;
-                                cmdSendBytes[12] = 0;
                             }
 
 
-                            //肘部角度值检测以 确定手部运动
-                            //角度大于阈值（40度） 模拟放下重物动作（即伸直） 小于阈值 无动作
-                            if (Math.Abs(methods._angle[0]) > 40)//左手弯曲时执行
+                            //若手部弯曲，则伸直
+                            if (methods._angle[0] > 40)//左手0前1后从60°向0°伸直
                             {
                                 cmdSendBytes[1] = 1;
                                 cmdSendBytes[2] = 1;
@@ -728,22 +755,20 @@ namespace Skeleton_Monitor
                             }
                             else
                             {
-                                if (Math.Abs(methods._angle[0]) > 5)
+                                if (methods._angle[0] > 0)
                                 {
                                     cmdSendBytes[1] = 1;
                                     cmdSendBytes[2] = 1;
                                     cmdSendBytes[3] = rSpeedBytes2[1];
                                     cmdSendBytes[4] = rSpeedBytes2[0];
                                 }
-                                else//肘部关节小于5°时即停止电机
+                                else
                                 {
-                                    //肘部电机停止 
                                     cmdSendBytes[1] = 0;
-
                                 }
 
                             }
-                            if (Math.Abs(methods._angle[1]) > 40)
+                            if (methods._angle[1] < -40)//右手0后1前从-60°向0°伸直
                             {
                                 cmdSendBytes[13] = 1;
                                 cmdSendBytes[14] = 0;
@@ -752,7 +777,7 @@ namespace Skeleton_Monitor
                             }
                             else
                             {
-                                if (Math.Abs(methods._angle[1]) > 5)
+                                if (methods._angle[1] < 0)
                                 {
 
                                     cmdSendBytes[13] = 1;
@@ -762,16 +787,14 @@ namespace Skeleton_Monitor
                                 }
                                 else
                                 {
-                                    //肘部电机停止 
                                     cmdSendBytes[13] = 0;
                                 }
 
                             }
 
                         }
-                        else//腿部角度传感器已弯曲大于60°或角度传感器未初始化时执行
+                        else//腿部角度传感器已弯曲到位
                         {
-                            //双腿电机不工作
                             cmdSendBytes[5] = 0;
                             cmdSendBytes[6] = 0;
                             cmdSendBytes[7] = 0;
@@ -781,7 +804,7 @@ namespace Skeleton_Monitor
                             cmdSendBytes[11] = 0;
                             cmdSendBytes[12] = 0;
                             //肘部小于阈值
-                            if (Math.Abs(methods._angle[0]) < 5 && Math.Abs(methods._angle[1]) < 5)//若肘部关节比腿部关节到位慢，这里需要一个安全保证肘部到位时会停下来并指示蹲下动作完成
+                            if (methods._angle[0] < 0 && methods._angle[1] > 0)//若肘部关节比腿部关节到位慢，这里需要一个安全保证肘部到位时会停下来并指示蹲下动作完成
                             {
                                 cmdSendBytes[1] = 0;
                                 cmdSendBytes[2] = 0;
@@ -830,21 +853,13 @@ namespace Skeleton_Monitor
                         }
                         if (istrueY)
                         {
-                            int rSpeed1 = 3000;
-                            int rSpeed2 = 2500;
-
-
-                            byte[] rSpeedBytes1 = BitConverter.GetBytes(rSpeed1);
-                            byte[] rSpeedBytes2 = BitConverter.GetBytes(rSpeed2);
-                            //  腿部电机控制
-
-                            if (Math.Abs(methods._angle[2]) > 5)//左腿伸直
+                            if (methods._angle[2] < 0)//左腿0前1后从-60°向0°伸直
                             {
                                 cmdSendBytes[5] = 1;
                                 cmdSendBytes[6] = 0;
                                 cmdSendBytes[7] = rSpeedBytes1[1];
                                 cmdSendBytes[8] = rSpeedBytes1[0];
-                                if (Math.Abs(methods._angle[2]) < 10)
+                                if (methods._angle[2] > -10)
                                 {
                                     cmdSendBytes[7] = rSpeedBytes2[1];
                                     cmdSendBytes[8] = rSpeedBytes2[0];
@@ -854,13 +869,14 @@ namespace Skeleton_Monitor
                             {
                                 cmdSendBytes[5] = 0;
                             }
-                            if (Math.Abs(methods._angle[3]) > 5)//右腿伸直
+
+                            if (methods._angle[3] > 0)//右腿0后1前从60°向0°伸直
                             {
                                 cmdSendBytes[9] = 1;
                                 cmdSendBytes[10] = 1;
                                 cmdSendBytes[11] = rSpeedBytes1[1];
                                 cmdSendBytes[12] = rSpeedBytes1[0];
-                                if (Math.Abs(methods._angle[3]) < 10)
+                                if (methods._angle[3] < 10)
                                 {
                                     cmdSendBytes[11] = rSpeedBytes2[1];
                                     cmdSendBytes[12] = rSpeedBytes2[0];
@@ -872,9 +888,8 @@ namespace Skeleton_Monitor
                             }
 
                             if (methods.tempPress[7] > 500)
-                            {  //肘部角度值检测以 确定手部运动
-                               // 角度大于阈值（10度） 模拟拿起重物动作 小于阈值 无动作
-                                if (Math.Abs(methods._angle[0]) < 50)//肘部弯曲
+                            {  
+                                if (methods._angle[0] < 50)//左手0前1后从0°向60°弯曲
                                 {
                                     cmdSendBytes[1] = 1;
                                     cmdSendBytes[2] = 0;
@@ -884,7 +899,7 @@ namespace Skeleton_Monitor
                                 }
                                 else
                                 {
-                                    if (Math.Abs(methods._angle[0]) < 60)
+                                    if (methods._angle[0] < 60)
                                     {
                                         cmdSendBytes[1] = 1;
                                         cmdSendBytes[2] = 0;
@@ -893,15 +908,11 @@ namespace Skeleton_Monitor
                                     }
                                     else
                                     {
-                                        //肘部电机停止
                                         cmdSendBytes[1] = 0;
-                                        cmdSendBytes[2] = 0;
-                                        cmdSendBytes[3] = 0;
-                                        cmdSendBytes[4] = 0;
                                     }
 
                                 }
-                                if (Math.Abs(methods._angle[1]) < 50)//肘部弯曲
+                                if (methods._angle[1] > -50)//右手0后1前从0°向-60°弯曲
                                 {
                                     cmdSendBytes[13] = 1;
                                     cmdSendBytes[14] = 1;
@@ -910,7 +921,7 @@ namespace Skeleton_Monitor
                                 }
                                 else
                                 {
-                                    if (Math.Abs(methods._angle[1]) < 60)
+                                    if (methods._angle[1] > -60)
                                     {
                                         cmdSendBytes[13] = 1;
                                         cmdSendBytes[14] = 1;
@@ -919,9 +930,7 @@ namespace Skeleton_Monitor
                                     }
                                     else
                                     {
-                                        // 肘部电机停止
                                         cmdSendBytes[13] = 0;
-
                                     }
 
                                 }
@@ -939,7 +948,7 @@ namespace Skeleton_Monitor
                             }
 
                         }
-                        if (Math.Abs(methods._angle[2]) < 5 && Math.Abs(methods._angle[3]) < 5)//腿已伸直时
+                        if (methods._angle[2] > 0 && methods._angle[3] < 0)//腿已伸直时
                         {
                             cmdSendBytes[5] = 0;
                             cmdSendBytes[6] = 0;
@@ -951,7 +960,7 @@ namespace Skeleton_Monitor
                             cmdSendBytes[12] = 0;
                             if (istrueY && methods.tempPress[7] > 500)
                             {
-                                if (Math.Abs(methods._angle[0]) > 60 && Math.Abs(methods._angle[1]) > 60)
+                                if (methods._angle[0] > 60 && methods._angle[1] < 60)
                                 {
                                     cmdSendBytes[1] = 0;
                                     cmdSendBytes[2] = 0;
@@ -993,422 +1002,6 @@ namespace Skeleton_Monitor
             }
         }
 
-        //public void ActionWalk(object sender, EventArgs e)//【行走】动作
-        //{
-        //    //检测【动作开始】按扭是否按下
-        //    if (IsTrueClickDown && isActionWalk)
-        //    {
-        //        //检测【角度初始化】按扭是否按下
-        //        if (IsTrueForefootZero)
-        //        {
-        //            //按住压力传感器8启动行走动作
-        //            //if (methods.tempPress[7] > 500)
-        //            if(do_walk)
-        //            {
-        //                //2017-6-8问题总结：
-        //                //电机转速调大时走几个周期会往前弯曲，估计是绝对值的问题，后续控制应该用实际值
-        //                //角度有回程差，走了几个周期后伸直时会越来越往前拐，估计也是绝对值的问题。
-        //                int rSpeed1 = 3000;//动作开始电机转速
-        //                int rSpeed2 = 2500;//动作结束前降速缓冲
-
-        //                byte[] rSpeedBytes1 = BitConverter.GetBytes(rSpeed1);
-        //                byte[] rSpeedBytes2 = BitConverter.GetBytes(rSpeed2);
-
-        //                //先迈右腿，左腿进入摆动相
-        //                //if (DSt_left == false && Math.Abs(methods._angle[2]) < 10 && Math.Abs(methods._angle[3]) < 10)
-        //                if (DSt_left == false)
-        //                    init_LSW = true;
-
-        //                //左腿摆动相前期
-        //                //if (init_LSW == true && (Math.Abs(methods._angle[2]) < 45 || Math.Abs(methods._angle[3]) < 15))
-        //                if (init_LSW == true)
-        //                {
-        //                    DSt_left = true;
-
-        //                    if (Math.Abs(methods._angle[2]) < 45)//左腿0前1后从0°~5°向44°弯曲
-        //                    {
-        //                        cmdSendBytes[5] = 1;
-        //                        cmdSendBytes[6] = 1;
-        //                        cmdSendBytes[7] = rSpeedBytes1[1];
-        //                        cmdSendBytes[8] = rSpeedBytes1[0];
-
-        //                        if(Math.Abs(methods._angle[2]) > 35)
-        //                        {
-        //                            cmdSendBytes[7] = rSpeedBytes2[1];
-        //                            cmdSendBytes[8] = rSpeedBytes2[0];
-        //                        }
-        //                    }
-        //                    else//保护机制，下同，一般不会触发
-        //                    {
-        //                        cmdSendBytes[5] = 0;
-        //                    }
-
-        //                    if (Math.Abs(methods._angle[3]) < 15)//右腿0后1前从0°~5°向14°弯曲
-        //                    {
-        //                        cmdSendBytes[9] = 1;
-        //                        cmdSendBytes[10] = 0;
-        //                        cmdSendBytes[11] = rSpeedBytes1[1];
-        //                        cmdSendBytes[12] = rSpeedBytes1[0];
-
-        //                        if (Math.Abs(methods._angle[3]) > 5)
-        //                        {
-        //                            cmdSendBytes[11] = rSpeedBytes2[1];
-        //                            cmdSendBytes[12] = rSpeedBytes2[0];
-        //                        }
-        //                    }
-        //                    else
-        //                    {
-        //                        cmdSendBytes[9] = 0;
-        //                    }
-
-        //                    if(Math.Abs(methods._angle[2]) > 44 && Math.Abs(methods._angle[3]) > 14)
-        //                    {
-        //                        init_LSW = false;
-        //                        mid_LSW = true;
-        //                    }
-        //                }
-
-        //                //左腿摆动相中期
-        //                //if (mid_LSW == true && (Math.Abs(methods._angle[2]) > 40 || Math.Abs(methods._angle[3]) > 5
-        //                if (mid_LSW == true)
-        //                {
-
-        //                    if (mid_flag == false && Math.Abs(methods._angle[2]) < 90)//左腿0前1后从44°向54°弯曲
-        //                    {
-        //                        cmdSendBytes[5] = 1;
-        //                        cmdSendBytes[6] = 1;
-        //                        cmdSendBytes[7] = rSpeedBytes1[1];
-        //                        cmdSendBytes[8] = rSpeedBytes1[0];
-
-        //                        if (Math.Abs(methods._angle[2]) > 50)
-        //                        {
-        //                            cmdSendBytes[7] = rSpeedBytes2[1];
-        //                            cmdSendBytes[8] = rSpeedBytes2[0];
-        //                        }
-
-        //                        if (Math.Abs(methods._angle[2]) > 54)//测试时左腿停在57°左右，推测左腿角度直接从54°以下跳到55°以上，故把阈值从55改为80
-        //                            mid_flag = true;
-
-        //                    }
-
-        //                    else
-        //                    {
-        //                        if (mid_flag == true && Math.Abs(methods._angle[2]) > 40)//左腿0前1后从54°到41°伸直
-        //                        {
-        //                            cmdSendBytes[5] = 1;
-        //                            cmdSendBytes[6] = 0;
-        //                            cmdSendBytes[7] = rSpeedBytes1[1];
-        //                            cmdSendBytes[8] = rSpeedBytes1[0];
-
-        //                            if (Math.Abs(methods._angle[2]) < 45)
-        //                            {
-        //                                cmdSendBytes[7] = rSpeedBytes2[1];
-        //                                cmdSendBytes[8] = rSpeedBytes2[0];
-        //                            }
-        //                        }
-        //                        else
-        //                        {
-        //                            cmdSendBytes[5] = 0;
-        //                        }
-        //                    }
-
-
-        //                    if (Math.Abs(methods._angle[3]) > 10)//右腿0后1前从14°向11°伸直
-        //                    {
-        //                        cmdSendBytes[9] = 1;
-        //                        cmdSendBytes[10] = 1;
-        //                        cmdSendBytes[11] = rSpeedBytes1[1];
-        //                        cmdSendBytes[12] = rSpeedBytes1[0];
-
-        //                        if (Math.Abs(methods._angle[3]) < 10)
-        //                        {
-        //                            cmdSendBytes[11] = rSpeedBytes2[1];
-        //                            cmdSendBytes[12] = rSpeedBytes2[0];
-        //                        }
-        //                    }
-        //                    else
-        //                    {
-        //                        cmdSendBytes[9] = 0;
-        //                    }
-
-        //                    if (Math.Abs(methods._angle[2]) < 41 && Math.Abs(methods._angle[3]) < 11)
-        //                    {
-        //                        mid_LSW = false;
-        //                        term_LSW = true;
-        //                        mid_flag = false;
-        //                    }
-        //                }
-
-        //                //左腿摆动相后期
-        //                //if (term_LSW == true && (Math.Abs(methods._angle[2]) > 1 || Math.Abs(methods._angle[3]) > 1))
-        //                if (term_LSW == true)
-        //                {
-
-        //                    if (Math.Abs(methods._angle[2]) > 3)//左腿0前1后从41°向4°伸直
-        //                    {
-        //                        cmdSendBytes[5] = 1;
-        //                        cmdSendBytes[6] = 0;
-        //                        cmdSendBytes[7] = rSpeedBytes1[1];
-        //                        cmdSendBytes[8] = rSpeedBytes1[0];
-
-        //                        if (Math.Abs(methods._angle[2]) < 15)
-        //                        {
-        //                            cmdSendBytes[7] = rSpeedBytes2[1];
-        //                            cmdSendBytes[8] = rSpeedBytes2[0];
-        //                        }
-        //                    }
-        //                    else
-        //                    {
-        //                        cmdSendBytes[5] = 0;
-        //                    }
-
-        //                    if (Math.Abs(methods._angle[3]) > 3)//右腿0后1前从11°向4°伸直
-        //                    {
-        //                        cmdSendBytes[9] = 1;
-        //                        cmdSendBytes[10] = 1;
-        //                        cmdSendBytes[11] = rSpeedBytes1[1];
-        //                        cmdSendBytes[12] = rSpeedBytes1[0];
-
-        //                        if (Math.Abs(methods._angle[3]) < 5)
-        //                        {
-        //                            cmdSendBytes[11] = rSpeedBytes2[1];
-        //                            cmdSendBytes[12] = rSpeedBytes2[0];
-        //                        }
-        //                    }
-        //                    else
-        //                    {
-        //                        cmdSendBytes[9] = 0;
-        //                    }
-
-        //                    if (Math.Abs(methods._angle[2]) < 4 && Math.Abs(methods._angle[3]) < 4)
-        //                    {
-        //                        term_LSW = false;
-        //                        DSt_right = true;
-        //                    }
-        //                }
-
-        //                //右腿进入摆动相
-        //                //if (DSt_right == true && Math.Abs(methods._angle[2]) < 10 && Math.Abs(methods._angle[3]) < 10)
-        //                if (DSt_right == true)
-        //                    init_RSW = true;
-
-        //                //右腿摆动相前期
-        //                //if (init_RSW == true && (Math.Abs(methods._angle[3]) < 30 || Math.Abs(methods._angle[2]) < 25))
-        //                if (init_RSW == true)
-        //                {
-        //                    DSt_right = false;
-        //                    //此处是因为右腿和左腿弯曲同样角度而右腿实际弯曲的角度更大
-        //                    if (Math.Abs(methods._angle[2]) < 25)//左腿0前1后从0°~5°向24°弯曲
-        //                    {
-        //                        cmdSendBytes[5] = 1;
-        //                        cmdSendBytes[6] = 1;
-        //                        cmdSendBytes[7] = rSpeedBytes1[1];
-        //                        cmdSendBytes[8] = rSpeedBytes1[0];
-
-        //                        if (Math.Abs(methods._angle[2]) > 15)
-        //                        {
-        //                            cmdSendBytes[7] = rSpeedBytes2[1];
-        //                            cmdSendBytes[8] = rSpeedBytes2[0];
-        //                        }
-        //                    }
-        //                    else//保护机制，下同，一般不会触发
-        //                    {
-        //                        cmdSendBytes[5] = 0;
-        //                    }
-
-        //                    if (Math.Abs(methods._angle[3]) < 30)//右腿0后1前从0°~5°向29°弯曲
-        //                    {
-        //                        cmdSendBytes[9] = 1;
-        //                        cmdSendBytes[10] = 0;
-        //                        cmdSendBytes[11] = rSpeedBytes1[1];
-        //                        cmdSendBytes[12] = rSpeedBytes1[0];
-
-        //                        if (Math.Abs(methods._angle[3]) > 20)
-        //                        {
-        //                            cmdSendBytes[11] = rSpeedBytes2[1];
-        //                            cmdSendBytes[12] = rSpeedBytes2[0];
-        //                        }
-        //                    }
-        //                    else
-        //                    {
-        //                        cmdSendBytes[9] = 0;
-        //                    }
-
-        //                    if (Math.Abs(methods._angle[2]) > 24 && Math.Abs(methods._angle[3]) > 29)
-        //                    {
-        //                        init_RSW = false;
-        //                        mid_RSW = true;
-
-        //                    }
-        //                }
-
-        //                //右腿摆动相中期
-        //                //if (mid_RSW == true && (Math.Abs(methods._angle[3]) > 40 || Math.Abs(methods._angle[2]) > 10))
-        //                if (mid_RSW == true)
-        //                {
-
-        //                    if (mid_flag == false && Math.Abs(methods._angle[3]) < 90)//右腿0后1前从29°向39°弯曲
-        //                    {
-        //                        cmdSendBytes[9] = 1;
-        //                        cmdSendBytes[10] = 0;
-        //                        cmdSendBytes[11] = rSpeedBytes1[1];
-        //                        cmdSendBytes[12] = rSpeedBytes1[0];
-
-        //                        if (Math.Abs(methods._angle[3]) > 30)
-        //                        {
-        //                            cmdSendBytes[11] = rSpeedBytes2[1];
-        //                            cmdSendBytes[12] = rSpeedBytes2[0];
-        //                        }
-
-        //                        if (Math.Abs(methods._angle[3]) > 39)
-        //                            mid_flag = true;
-        //                    }
-        //                    else
-        //                    {
-        //                        if (mid_flag == true && Math.Abs(methods._angle[3]) > 24)//右腿从39°到25°伸直
-        //                        {
-        //                            cmdSendBytes[9] = 1;
-        //                            cmdSendBytes[10] = 1;
-        //                            cmdSendBytes[11] = rSpeedBytes1[1];
-        //                            cmdSendBytes[12] = rSpeedBytes1[0];
-
-        //                            if (Math.Abs(methods._angle[3]) < 30)
-        //                            {
-        //                                cmdSendBytes[11] = rSpeedBytes2[1];
-        //                                cmdSendBytes[12] = rSpeedBytes2[0];
-        //                            }
-        //                        }
-        //                        else
-        //                        {
-        //                            cmdSendBytes[9] = 0;
-        //                        }
-        //                    }
-
-
-        //                    if (Math.Abs(methods._angle[2]) > 10)//左腿0前1后从24°向11°伸直
-        //                    {
-        //                        cmdSendBytes[5] = 1;
-        //                        cmdSendBytes[6] = 0;
-        //                        cmdSendBytes[7] = rSpeedBytes1[1];
-        //                        cmdSendBytes[8] = rSpeedBytes1[0];
-
-        //                        if (Math.Abs(methods._angle[2]) < 20)
-        //                        {
-        //                            cmdSendBytes[7] = rSpeedBytes2[1];
-        //                            cmdSendBytes[8] = rSpeedBytes2[0];
-        //                        }
-        //                    }
-        //                    else
-        //                    {
-        //                        cmdSendBytes[5] = 0;
-        //                    }
-
-        //                    if (Math.Abs(methods._angle[3]) < 25 && Math.Abs(methods._angle[2]) < 11)
-        //                    {
-        //                        mid_RSW = false;
-        //                        term_RSW = true;
-        //                        mid_flag = false;
-        //                    }
-        //                }
-
-        //                //右腿摆动相后期
-        //                //if (term_RSW == true && (Math.Abs(methods._angle[2]) > 1 || Math.Abs(methods._angle[3]) > 1))
-        //                if (term_RSW == true)
-        //                {
-
-        //                    if (Math.Abs(methods._angle[3]) > 3)//右腿0后1前从25°向4°伸直
-        //                    {
-        //                        cmdSendBytes[9] = 1;
-        //                        cmdSendBytes[10] = 1;
-        //                        cmdSendBytes[11] = rSpeedBytes1[1];
-        //                        cmdSendBytes[12] = rSpeedBytes1[0];
-
-        //                        if (Math.Abs(methods._angle[3]) < 15)
-        //                        {
-        //                            cmdSendBytes[11] = rSpeedBytes2[1];
-        //                            cmdSendBytes[12] = rSpeedBytes2[0];
-        //                        }
-        //                    }
-        //                    else
-        //                    {
-        //                        cmdSendBytes[9] = 0;
-        //                    }
-
-        //                    if (Math.Abs(methods._angle[2]) > 3)//左腿0前1后从11°向4°伸直
-        //                    {
-        //                        cmdSendBytes[5] = 1;
-        //                        cmdSendBytes[6] = 0;
-        //                        cmdSendBytes[7] = rSpeedBytes1[1];
-        //                        cmdSendBytes[8] = rSpeedBytes1[0];
-
-        //                        if (Math.Abs(methods._angle[2]) < 5)
-        //                        {
-        //                            cmdSendBytes[7] = rSpeedBytes2[1];
-        //                            cmdSendBytes[8] = rSpeedBytes2[0];
-        //                        }
-        //                    }
-        //                    else
-        //                    {
-        //                        cmdSendBytes[5] = 0;
-        //                    }
-
-        //                    if (Math.Abs(methods._angle[2]) < 4 && Math.Abs(methods._angle[3]) < 4)
-        //                    {
-        //                        term_RSW = false;
-        //                        DSt_left = false;
-        //                    }
-        //                }
-
-        //                try
-        //                {
-        //                    methods.SendControlCMD(cmdSendBytes);
-        //                }
-        //                catch
-        //                {
-        //                    //MessageBox.Show("未正确选择电机串口!");
-        //                    statusBar.Background = new SolidColorBrush(Color.FromArgb(255, 150, 50, 50));
-        //                    statusInfoTextBlock.Text = "未正确选择电机串口！请选择正确电机串口后重新按下【动作开始】按钮";
-        //                    Out_textBox.Text = "未正确选择电机串口！请选择正确电机串口后重新按下【动作开始】按钮";
-
-        //                    IsTrueClickDown = false;
-        //                    ActionStart_button.Content = "动作开始";
-        //                    ActionStart_button.IsEnabled = true;
-        //                    ActionStop_button.IsEnabled = false;
-        //                }
-        //            }
-
-        //            else
-        //            {
-        //                cmdSendBytes[5] = 0;
-        //                cmdSendBytes[6] = 0;
-        //                cmdSendBytes[7] = 0;
-        //                cmdSendBytes[8] = 0;
-        //                cmdSendBytes[9] = 0;
-        //                cmdSendBytes[10] = 0;
-        //                cmdSendBytes[11] = 0;
-        //                cmdSendBytes[12] = 0;
-
-        //                try
-        //                {
-        //                    methods.SendControlCMD(cmdSendBytes);
-        //                }
-        //                catch
-        //                {
-        //                    //MessageBox.Show("未正确选择电机串口!");
-        //                    statusBar.Background = new SolidColorBrush(Color.FromArgb(255, 150, 50, 50));
-        //                    statusInfoTextBlock.Text = "未正确选择电机串口！请选择正确电机串口后重新按下【动作开始】按钮";
-        //                    Out_textBox.Text = "未正确选择电机串口！请选择正确电机串口后重新按下【动作开始】按钮";
-
-        //                    IsTrueClickDown = false;
-        //                    ActionStart_button.Content = "动作开始";
-        //                    ActionStart_button.IsEnabled = true;
-        //                    ActionStop_button.IsEnabled = false;
-        //                }
-        //            }
-        //        }
-        //    }
-        //}
-
         public void ActionWalk(object sender, EventArgs e)//【行走】动作
         {
             //检测【动作开始】按扭是否按下
@@ -1422,7 +1015,7 @@ namespace Skeleton_Monitor
                     if (do_walk)
                     {
    
-                        int rSpeed1 = 5000;//动作开始电机转速
+                        int rSpeed1 = 5500;//动作开始电机转速
                         int rSpeed2 = 4500;//动作结束前降速缓冲
 
                         byte[] rSpeedBytes1 = BitConverter.GetBytes(rSpeed1);
