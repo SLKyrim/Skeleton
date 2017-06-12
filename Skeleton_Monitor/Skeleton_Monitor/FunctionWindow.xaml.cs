@@ -684,7 +684,7 @@ namespace Skeleton_Monitor
                         IsTrueSquatting = true; //正在下蹲中
 
                         //倾角传感器触发下蹲动作
-                        if (Math.Abs(methods.dirangle[7]) < 75 && (Math.Abs(methods._angle[2]) < 5 || Math.Abs(methods._angle[3]) < 5))//后背陀螺仪y轴小于75°(初始是90°摆放)；左腿和右腿角度传感器小于5°（说明角度初始化完成）时执行
+                        if (Math.Abs(methods.dirangle[7]) < 75 && (Math.Abs(methods._angle[2]) < 10 || Math.Abs(methods._angle[3]) < 10))//后背陀螺仪y轴小于75°(初始是90°摆放)；左腿和右腿角度传感器小于5°（说明角度初始化完成）时执行
                         {
                             istrueX = true;
                         }
@@ -707,7 +707,7 @@ namespace Skeleton_Monitor
                         //右腿从0°向40°弯曲
                         //左手从60°向0°伸直 或 保持0°不变
                         //右手从-60°向0°伸直 或 保持0°不变
-                        if (istrueX && (methods._angle[2] > -60 || methods._angle[3] < 40))
+                        if (istrueX && (methods._angle[2] > -60 || methods._angle[3] < 40 || methods._angle[0] < 0 || methods._angle[1] > 0))
                         {
                             if (methods._angle[2] > -60)//左腿0前1后从0°向-60°弯曲
                             {
@@ -745,78 +745,45 @@ namespace Skeleton_Monitor
 
 
                             //若手部弯曲，则伸直
-                            if (methods._angle[0] > 40)//左手0前1后从60°向0°伸直
+                            if (methods._angle[0] > 0)//左手0前1后从60°向0°伸直
                             {
                                 cmdSendBytes[1] = 1;
                                 cmdSendBytes[2] = 1;
                                 cmdSendBytes[3] = rSpeedBytes1[1];
                                 cmdSendBytes[4] = rSpeedBytes1[0];
-
-                            }
-                            else
-                            {
-                                if (methods._angle[0] > 0)
+                                if (methods._angle[0] < 10)
                                 {
-                                    cmdSendBytes[1] = 1;
-                                    cmdSendBytes[2] = 1;
                                     cmdSendBytes[3] = rSpeedBytes2[1];
                                     cmdSendBytes[4] = rSpeedBytes2[0];
                                 }
-                                else
-                                {
-                                    cmdSendBytes[1] = 0;
-                                }
-
                             }
-                            if (methods._angle[1] < -40)//右手0后1前从-60°向0°伸直
+                            else
+                            {
+                                cmdSendBytes[1] = 0;
+                            }
+
+                            if (methods._angle[1] < 0)//右手0后1前从-60°向0°伸直
                             {
                                 cmdSendBytes[13] = 1;
                                 cmdSendBytes[14] = 0;
                                 cmdSendBytes[15] = rSpeedBytes1[1];
                                 cmdSendBytes[16] = rSpeedBytes1[0];
-                            }
-                            else
-                            {
-                                if (methods._angle[1] < 0)
+                                if (methods._angle[1] < -10)
                                 {
-
-                                    cmdSendBytes[13] = 1;
-                                    cmdSendBytes[14] = 0;
                                     cmdSendBytes[15] = rSpeedBytes2[1];
                                     cmdSendBytes[16] = rSpeedBytes2[0];
                                 }
-                                else
-                                {
+                            }
+                            else
+                            {
                                     cmdSendBytes[13] = 0;
-                                }
-
                             }
 
                         }
                         else//腿部角度传感器已弯曲到位
                         {
-                            cmdSendBytes[5] = 0;
-                            cmdSendBytes[6] = 0;
-                            cmdSendBytes[7] = 0;
-                            cmdSendBytes[8] = 0;
-                            cmdSendBytes[9] = 0;
-                            cmdSendBytes[10] = 0;
-                            cmdSendBytes[11] = 0;
-                            cmdSendBytes[12] = 0;
-                            //肘部小于阈值
-                            if (methods._angle[0] < 0 && methods._angle[1] > 0)//若肘部关节比腿部关节到位慢，这里需要一个安全保证肘部到位时会停下来并指示蹲下动作完成
-                            {
-                                cmdSendBytes[1] = 0;
-                                cmdSendBytes[2] = 0;
-                                cmdSendBytes[3] = 0;
-                                cmdSendBytes[4] = 0;
-                                cmdSendBytes[13] = 0;
-                                cmdSendBytes[14] = 0;
-                                cmdSendBytes[15] = 0;
-                                cmdSendBytes[16] = 0;
-                                IsTrueSquatting = false; //蹲下动作完成
-                                istrueX = false;
-                            }
+                            IsTrueSquatting = false; //蹲下动作完成
+                            istrueX = false;
                         }
 
                         try
@@ -841,12 +808,7 @@ namespace Skeleton_Monitor
                     {
                         //起立中
                         IsTrueStanduping = true;
-                        //判断腿部阈值是否近似于0
-                        //int press = 0;
-                        //for (int i = 0; i < 8; i++)
-                        //{
-                        //    press += spmManager.tempPress[i];
-                        //}
+
                         if (methods.tempPress[7] > 500)//观察到压力传感器8闲置误差估计在0~200之间，故阈值设高一些免得自动触发
                         {
                             istrueY = true;
@@ -870,7 +832,7 @@ namespace Skeleton_Monitor
                                 cmdSendBytes[5] = 0;
                             }
 
-                            if (methods._angle[3] > 0)//右腿0后1前从60°向0°伸直
+                            if (methods._angle[3] > 0)//右腿0后1前从40°向0°伸直
                             {
                                 cmdSendBytes[9] = 1;
                                 cmdSendBytes[10] = 1;
@@ -888,97 +850,73 @@ namespace Skeleton_Monitor
                             }
 
                             if (methods.tempPress[7] > 500)
-                            {  
-                                if (methods._angle[0] < 50)//左手0前1后从0°向60°弯曲
+                            {
+                                if (methods._angle[0] < 60)//左手0前1后从0°向60°弯曲
                                 {
                                     cmdSendBytes[1] = 1;
                                     cmdSendBytes[2] = 0;
                                     cmdSendBytes[3] = rSpeedBytes1[1];
                                     cmdSendBytes[4] = rSpeedBytes1[0];
+                                    if (methods._angle[0] > 50)
+                                    {
+                                        cmdSendBytes[3] = rSpeedBytes2[1];
+                                        cmdSendBytes[4] = rSpeedBytes2[0];
+                                    }
 
                                 }
                                 else
                                 {
-                                    if (methods._angle[0] < 60)
-                                    {
-                                        cmdSendBytes[1] = 1;
-                                        cmdSendBytes[2] = 0;
-                                        cmdSendBytes[3] = rSpeedBytes2[1];
-                                        cmdSendBytes[4] = rSpeedBytes2[0];
-                                    }
-                                    else
-                                    {
-                                        cmdSendBytes[1] = 0;
-                                    }
-
+                                    cmdSendBytes[1] = 0;
                                 }
-                                if (methods._angle[1] > -50)//右手0后1前从0°向-60°弯曲
+
+                                if (methods._angle[1] > -60)//右手0后1前从0°向-60°弯曲
                                 {
                                     cmdSendBytes[13] = 1;
                                     cmdSendBytes[14] = 1;
                                     cmdSendBytes[15] = rSpeedBytes1[1];
                                     cmdSendBytes[16] = rSpeedBytes1[0];
-                                }
-                                else
-                                {
-                                    if (methods._angle[1] > -60)
+                                    if (methods._angle[1] < -50)
                                     {
-                                        cmdSendBytes[13] = 1;
-                                        cmdSendBytes[14] = 1;
                                         cmdSendBytes[15] = rSpeedBytes2[1];
                                         cmdSendBytes[16] = rSpeedBytes2[0];
                                     }
-                                    else
-                                    {
-                                        cmdSendBytes[13] = 0;
-                                    }
-
+                                }
+                                else
+                                {
+                                    cmdSendBytes[13] = 0;
                                 }
                             }
                             else
                             {
                                 cmdSendBytes[1] = 0;
-                                cmdSendBytes[2] = 0;
-                                cmdSendBytes[3] = 0;
-                                cmdSendBytes[4] = 0;
                                 cmdSendBytes[13] = 0;
-                                cmdSendBytes[14] = 0;
-                                cmdSendBytes[15] = 0;
-                                cmdSendBytes[16] = 0;
                             }
-
                         }
+
                         if (methods._angle[2] > 0 && methods._angle[3] < 0)//腿已伸直时
                         {
                             cmdSendBytes[5] = 0;
-                            cmdSendBytes[6] = 0;
-                            cmdSendBytes[7] = 0;
-                            cmdSendBytes[8] = 0;
                             cmdSendBytes[9] = 0;
-                            cmdSendBytes[10] = 0;
-                            cmdSendBytes[11] = 0;
-                            cmdSendBytes[12] = 0;
+                   
                             if (istrueY && methods.tempPress[7] > 500)
                             {
-                                if (methods._angle[0] > 60 && methods._angle[1] < 60)
+                                if (methods._angle[0] > 60 && methods._angle[1] < -60)
                                 {
                                     cmdSendBytes[1] = 0;
-                                    cmdSendBytes[2] = 0;
-                                    cmdSendBytes[3] = 0;
-                                    cmdSendBytes[4] = 0;
+             
                                     cmdSendBytes[13] = 0;
-                                    cmdSendBytes[14] = 0;
-                                    cmdSendBytes[15] = 0;
-                                    cmdSendBytes[16] = 0;
-                                    IsTrueStanduping = false;//拿重物起立动作完成
+                    
+                                    IsTrueStanduping = false;//拿重物的起立动作完成
                                     istrueY = false;
                                 }
-
                             }
                             else
                             {
-                                IsTrueStanduping = false;//直接起来动作完成
-                                istrueY = false;
+                                if(istrueY && methods.tempPress[7] > 500)
+                                {
+                                    IsTrueStanduping = false;//不拿重物的起立动作完成
+                                    istrueY = false;
+                                }
                             }
                         }
 
