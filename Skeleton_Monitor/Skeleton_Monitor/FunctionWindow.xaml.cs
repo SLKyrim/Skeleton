@@ -78,8 +78,11 @@ namespace Skeleton_Monitor
         public bool term_RSW = false;   //右腿摆动相后期
         public bool mid_flag = false;
         public bool do_walk = false;
-        public int status = 0; 
+        public int status = 0;
 
+        //电机执行速度
+        int rSpeed1 = 3000;
+        int rSpeed2 = 2500;
         #endregion
 
         #region ComboBox控件
@@ -414,11 +417,11 @@ namespace Skeleton_Monitor
                   
                 else
                 {
-                    if (add_speed > 3000 || add_speed < 1800)
+                    if (add_speed > 3000 || add_speed < 2000)
                     {
                         //MessageBox.Show("输入转速无效，请在范围1800~3000内选择");
                         statusBar.Background = new SolidColorBrush(Color.FromArgb(255, 230, 20, 20));
-                        statusInfoTextBlock.Text = "输入转速无效，请在范围1800~3000内选择！";
+                        statusInfoTextBlock.Text = "输入转速无效，请在范围2000~3000内选择！";
                         In_textBox.Text = "输入转速无效，请在范围1800~3000内选择！";
                     }
                       
@@ -677,9 +680,27 @@ namespace Skeleton_Monitor
             do_walk = false;
             ActionStop_button.IsEnabled = true;
         }
+
+        private void SetSpeedButton_Click(object sender, RoutedEventArgs e)//点击【确认】按钮时执行
+        {
+            int rSpeed1_test = Convert.ToInt16(MotorSpeed_textBox.Text);
+
+            if(rSpeed1_test < 2000 || rSpeed1_test > 6000)
+            {
+                statusBar.Background = new SolidColorBrush(Color.FromArgb(255, 230, 20, 20));
+                statusInfoTextBlock.Text = "输入转速无效，请在范围2000~6000内选择！";
+                In_textBox.Text = "输入转速无效，请在范围2000~6000内选择！";
+            }
+            else
+            {
+                rSpeed1 = Convert.ToInt16(MotorSpeed_textBox.Text);
+                statusBar.Background = new SolidColorBrush(Color.FromArgb(255, 0, 122, 204));
+                statusInfoTextBlock.Text = "已设置电机转速为" + rSpeed1;
+            }
+        }
         #endregion
 
-        public void ActionPick(object sender, EventArgs e)
+        public void ActionPick(object sender, EventArgs e)//【拾取重物】动作
         {
             //检测开始按键是否按下
             if (IsTrueClickDown && isActionPick)
@@ -687,8 +708,6 @@ namespace Skeleton_Monitor
                 //初始化已经完成，开始检测状态
                 if (IsTrueForefootZero)
                 {
-                    int rSpeed1 = 3000;
-                    int rSpeed2 = 2500;
 
                     byte[] rSpeedBytes1 = BitConverter.GetBytes(rSpeed1);
                     byte[] rSpeedBytes2 = BitConverter.GetBytes(rSpeed2);
@@ -699,22 +718,22 @@ namespace Skeleton_Monitor
                         //正在下蹲中
                         IsTrueSquatting = true;
                         //如果腿部角度未达到阈值
-                        if (methods.dirangle[7] < 75 && (Math.Abs(methods._angle[2]) < 7 || Math.Abs(methods._angle[3]) < 7))
+                        if (methods.dirangle[7] < 70 && (Math.Abs(methods._angle[2]) < 7 || Math.Abs(methods._angle[3]) < 7))
                         {
                             istrueX = true;
                         }
-                        if (istrueX && (Math.Abs(methods._angle[2]) < 50 || Math.Abs(methods._angle[3]) < 40))
+                        if (istrueX && (Math.Abs(methods._angle[2]) < 65 || Math.Abs(methods._angle[3]) < 55))
                         {
                             status = 1;
 
                             //左腿从0°向-60°弯曲
-                            if (methods._angle[2] > -50)
+                            if (methods._angle[2] > -65)
                             {
                                 cmdSendBytes[5] = 1;
                                 cmdSendBytes[6] = 1;
                                 cmdSendBytes[7] = rSpeedBytes1[1];
                                 cmdSendBytes[8] = rSpeedBytes1[0];
-                                if (methods._angle[2] < -40)
+                                if (methods._angle[2] < -55)
                                 {
                                     cmdSendBytes[7] = rSpeedBytes2[1];
                                     cmdSendBytes[8] = rSpeedBytes2[0];
@@ -725,14 +744,14 @@ namespace Skeleton_Monitor
                                 cmdSendBytes[5] = 0;
                             }
 
-                            //右腿从0°向60°弯曲
-                            if (methods._angle[3] < 40)
+                            //右腿从0°向50°弯曲
+                            if (methods._angle[3] < 55)
                             {
                                 cmdSendBytes[9] = 1;
                                 cmdSendBytes[10] = 0;
                                 cmdSendBytes[11] = rSpeedBytes1[1];
                                 cmdSendBytes[12] = rSpeedBytes1[0];
-                                if (methods._angle[3] > 30)
+                                if (methods._angle[3] > 45)
                                 {
                                     cmdSendBytes[11] = rSpeedBytes2[1];
                                     cmdSendBytes[12] = rSpeedBytes2[0];
@@ -744,8 +763,8 @@ namespace Skeleton_Monitor
                             }
 
 
-                            //左手从60°向5°伸直
-                            if (methods._angle[0] > 5)
+                            //左手从60°向10°伸直
+                            if (methods._angle[0] > 10)
                             {
                                 cmdSendBytes[1] = 1;
                                 cmdSendBytes[2] = 1;
@@ -763,8 +782,8 @@ namespace Skeleton_Monitor
                                 cmdSendBytes[1] = 0;
                             }
 
-                            //右手从-60°向5°伸直
-                            if (methods._angle[1] < -5)
+                            //右手从-60°向-20°伸直
+                            if (methods._angle[1] < -20)
                             {
                                 cmdSendBytes[13] = 1;
                                 cmdSendBytes[14] = 0;
@@ -788,7 +807,7 @@ namespace Skeleton_Monitor
                             cmdSendBytes[5] = 0;
                             cmdSendBytes[9] = 0;
 
-                            if (methods._angle[0] < 5 && methods._angle[1] > -5)
+                            if (methods._angle[0] < 10 && methods._angle[1] > -20)
                             {
                                 status = 2;
                                 cmdSendBytes[1] = 0;
@@ -1011,9 +1030,6 @@ namespace Skeleton_Monitor
                     if (do_walk)
                     {
    
-                        int rSpeed1 = 4000;//动作开始电机转速
-                        int rSpeed2 = 2500;//动作结束前降速缓冲
-
                         byte[] rSpeedBytes1 = BitConverter.GetBytes(rSpeed1);
                         byte[] rSpeedBytes2 = BitConverter.GetBytes(rSpeed2);
 
