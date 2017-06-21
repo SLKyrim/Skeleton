@@ -404,7 +404,7 @@ namespace Skeleton_Monitor
                 statusInfoTextBlock.Text = "未正确选择电机号！选择电机号请输入1或2或3或4！";
                 In_textBox.Text = "未正确选择电机号！选择电机号请输入1或2或3或4！";
             }
-                
+
             else
             {
                 if (add_enable != 0 && add_enable != 1)
@@ -414,7 +414,7 @@ namespace Skeleton_Monitor
                     statusInfoTextBlock.Text = "选择是否使能请输入0或1！";
                     In_textBox.Text = "选择是否使能请输入0或1！";
                 }
-                  
+
                 else
                 {
                     if (add_speed > 3000 || add_speed < 2000)
@@ -424,7 +424,7 @@ namespace Skeleton_Monitor
                         statusInfoTextBlock.Text = "输入转速无效，请在范围2000~3000内选择！";
                         In_textBox.Text = "输入转速无效，请在范围1800~3000内选择！";
                     }
-                      
+
                     else
                     {
                         if (add_direction != 0 && add_direction != 1)
@@ -434,7 +434,7 @@ namespace Skeleton_Monitor
                             statusInfoTextBlock.Text = "选择电机方向请输入0或1！";
                             In_textBox.Text = "选择电机方向请输入0或1！";
                         }
-                           
+
                         else
                         {
 
@@ -512,7 +512,7 @@ namespace Skeleton_Monitor
                 statusBar.Background = new SolidColorBrush(Color.FromArgb(255, 230, 20, 20));
                 statusInfoTextBlock.Text = "未正确选择电机串口！";
             }
-            
+
         }
 
         private void Send_button_Click(object sender, RoutedEventArgs e)//点击【发送命令】按钮时执行
@@ -567,9 +567,9 @@ namespace Skeleton_Monitor
             //时间触发 为真
 
             statusBar.Background = new SolidColorBrush(Color.FromArgb(255, 0, 122, 204));
-            if(isActionPick)
+            if (isActionPick)
                 statusInfoTextBlock.Text = "【拾取重物】动作已开始!";
-            if(isActionWalk)
+            if (isActionWalk)
                 statusInfoTextBlock.Text = "【行走】动作已开始!";
 
             ActionStart_button.Content = "已开始";
@@ -582,7 +582,7 @@ namespace Skeleton_Monitor
             ActionStart_button.IsEnabled = false;
             ActionStop_button.IsEnabled = true;
 
-            if(isActionWalk)
+            if (isActionWalk)
             {
                 ActionWalkDo_button.IsEnabled = true;
                 ActionWalkEnd_button.IsEnabled = true;
@@ -685,7 +685,7 @@ namespace Skeleton_Monitor
         {
             int rSpeed1_test = Convert.ToInt16(MotorSpeed_textBox.Text);
 
-            if(rSpeed1_test < 2000 || rSpeed1_test > 6000)
+            if (rSpeed1_test < 2000 || rSpeed1_test > 6000)
             {
                 statusBar.Background = new SolidColorBrush(Color.FromArgb(255, 230, 20, 20));
                 statusInfoTextBlock.Text = "输入转速无效，请在范围2000~6000内选择！";
@@ -798,7 +798,7 @@ namespace Skeleton_Monitor
                             }
                             else
                             {
-                                cmdSendBytes[13] = 0;                             
+                                cmdSendBytes[13] = 0;
                             }
                         }
 
@@ -1025,11 +1025,10 @@ namespace Skeleton_Monitor
                 //检测【角度初始化】按扭是否按下
                 if (IsTrueForefootZero)
                 {
-                    //按住压力传感器8启动行走动作
-                    //if (methods.tempPress[7] > 500)
+
                     if (do_walk)
                     {
-   
+
                         byte[] rSpeedBytes1 = BitConverter.GetBytes(rSpeed1);
                         byte[] rSpeedBytes2 = BitConverter.GetBytes(rSpeed2);
 
@@ -1043,14 +1042,14 @@ namespace Skeleton_Monitor
                             init_LSW = true;
                             status = 1;
                         }
-                           
+
 
                         //左腿摆动相前期
                         //左腿从0°向-44°弯曲
                         //右腿从0°向14°弯曲
                         if (init_LSW == true)
                         {
-                   
+
                             DSt_left = true;
                             status = 2;
 
@@ -1220,7 +1219,7 @@ namespace Skeleton_Monitor
                             init_RSW = true;
                             status = 5;
                         }
-                           
+
 
                         //右腿摆动相前期
                         //左腿从0°向-14°弯曲
@@ -1229,7 +1228,7 @@ namespace Skeleton_Monitor
                         {
                             DSt_right = false;
                             status = 6;
-                          
+
                             if (methods._angle[2] > -15)//左腿0前1后从0°向-14°弯曲
                             {
                                 cmdSendBytes[5] = 1;
@@ -1386,66 +1385,9 @@ namespace Skeleton_Monitor
                             }
                         }
 
-                        //if(methods.tempPress[7] >2000)
-                        //{
-                        //    DSt_left = false;         //进入左腿摆动相的过渡相
-                        //    DSt_right = false;        //进入右腿摆动相的过渡相
-                        //    init_LSW = false;         //左腿摆动相前期
-                        //    mid_LSW = false;          //左腿摆动相中期
-                        //    term_LSW = false;         //左腿摆动相后期
-                        //    init_RSW = false;         //右腿摆动相前期
-                        //    mid_RSW = false;          //右腿摆动相中期
-                        //    term_RSW = false;         //右腿摆动相后期
-                        //    mid_flag = false;
-
-                        //    if (methods._angle[2] < 0 || methods._angle[3] > 0)
-                        //    {
-                        //        if (methods._angle[2] < 1)//左腿停止行走伸直
-                        //        {
-                        //            cmdSendBytes[5] = 1;
-                        //            cmdSendBytes[6] = 0;
-                        //            cmdSendBytes[7] = rSpeedBytes1[1];
-                        //            cmdSendBytes[8] = rSpeedBytes1[0];
-
-                        //            if (Math.Abs(methods._angle[2]) > -5)
-                        //            {
-                        //                cmdSendBytes[7] = rSpeedBytes2[1];
-                        //                cmdSendBytes[8] = rSpeedBytes2[0];
-                        //            }
-                        //        }
-                        //        else
-                        //        {
-                        //            cmdSendBytes[5] = 0;
-                        //        }
-
-                        //        if (methods._angle[3] > -1)//右腿停止行走伸直
-                        //        {
-                        //            cmdSendBytes[9] = 1;
-                        //            cmdSendBytes[10] = 1;
-                        //            cmdSendBytes[11] = rSpeedBytes1[1];
-                        //            cmdSendBytes[12] = rSpeedBytes1[0];
-
-                        //            if (Math.Abs(methods._angle[3]) < 5)
-                        //            {
-                        //                cmdSendBytes[11] = rSpeedBytes2[1];
-                        //                cmdSendBytes[12] = rSpeedBytes2[0];
-                        //            }
-                        //        }
-                        //        else
-                        //        {
-                        //            cmdSendBytes[9] = 0;
-                        //        }
-                        //    }
-                        //    else
-                        //    {
-                        //        cmdSendBytes[5] = 0;
-                        //        cmdSendBytes[9] = 0;
-                        //    }
-                        //}
-
                         switch (status)//动作测试监控，方便了解哪个阶段出现问题
                         {
-                            
+
                             case 0:
                                 break;
 
@@ -1513,6 +1455,54 @@ namespace Skeleton_Monitor
                             ActionStart_button.IsEnabled = true;
                             ActionStop_button.IsEnabled = false;
                         }
+                    }
+
+                    else
+                    {
+                        cmdSendBytes[5] = 0;
+                        cmdSendBytes[6] = 0;
+                        cmdSendBytes[7] = 0;
+                        cmdSendBytes[8] = 0;
+                        cmdSendBytes[9] = 0;
+                        cmdSendBytes[10] = 0;
+                        cmdSendBytes[11] = 0;
+                        cmdSendBytes[12] = 0;
+
+                        try
+                        {
+                            methods.SendControlCMD(cmdSendBytes);
+                        }
+                        catch
+                        {
+                            //MessageBox.Show("未正确选择电机串口!");
+                            statusBar.Background = new SolidColorBrush(Color.FromArgb(255, 150, 50, 50));
+                            statusInfoTextBlock.Text = "未正确选择电机串口！请选择正确电机串口后重新按下【动作开始】按钮";
+
+                            IsTrueClickDown = false;
+                            ActionStart_button.Content = "动作开始";
+                            ActionStart_button.IsEnabled = true;
+                            ActionStop_button.IsEnabled = false;
+                        }
+                    }
+                }
+            }
+        }
+
+        public void ActionWalk(object sender, EventArgs e)//【行走】动作
+        {
+            //检测【动作开始】按扭是否按下
+            if (IsTrueClickDown && isActionWalk)
+            {
+                //检测【角度初始化】按扭是否按下
+                if (IsTrueForefootZero)
+                {
+
+                    if (do_walk)
+                    {
+                        byte[] rSpeedBytes1 = BitConverter.GetBytes(rSpeed1);
+                        byte[] rSpeedBytes2 = BitConverter.GetBytes(rSpeed2);
+
+                        if(methods.tempPress[0] > 300 && methods.tempPress[3] > 300)
                     }
 
                     else
