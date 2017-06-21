@@ -215,29 +215,29 @@
                 <!--压力传感器信息-->
                 <GroupBox Header="压力传感器信息" DockPanel.Dock="Top" Margin="5,5,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
                     <DockPanel>
-                        <GroupBox Header="压力传感器1" DockPanel.Dock="Left" Margin="5,0,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
-                            <TextBox x:Name="Pressure1_Textbox" IsReadOnly="True" Height="25" Margin="0,6,1,0"  VerticalAlignment="Top" Text="0" FontSize="15"/>
+                        <GroupBox Header="左腿足跟" DockPanel.Dock="Left" Margin="5,0,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
+                            <TextBox x:Name="Pressure1_Textbox" IsReadOnly="True" Width="70" Height="25" Margin="0,6,1,0"  VerticalAlignment="Top" Text="0" FontSize="15"/>
                         </GroupBox>
-                        <GroupBox Header="压力传感器2" DockPanel.Dock="Left" Margin="5,0,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
-                            <TextBox x:Name="Pressure2_Textbox" IsReadOnly="True" Height="25" Margin="0,6,1,0"  VerticalAlignment="Top" Text="0" FontSize="15"/>
+                        <GroupBox Header="左腿足侧" DockPanel.Dock="Left" Margin="5,0,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
+                            <TextBox x:Name="Pressure2_Textbox" IsReadOnly="True" Width="70" Height="25" Margin="0,6,1,0"  VerticalAlignment="Top" Text="0" FontSize="15"/>
                         </GroupBox>
-                        <GroupBox Header="压力传感器3" DockPanel.Dock="Left" Margin="5,0,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
-                            <TextBox x:Name="Pressure3_Textbox" IsReadOnly="True" Height="25" Margin="0,6,1,0"  VerticalAlignment="Top" Text="0" FontSize="15"/>
+                        <GroupBox Header="左腿足尖" DockPanel.Dock="Left" Margin="5,0,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
+                            <TextBox x:Name="Pressure3_Textbox" IsReadOnly="True" Width="70" Height="25" Margin="0,6,1,0"  VerticalAlignment="Top" Text="0" FontSize="15"/>
                         </GroupBox>
-                        <GroupBox Header="压力传感器4" DockPanel.Dock="Left" Margin="5,0,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
-                            <TextBox x:Name="Pressure4_Textbox" IsReadOnly="True" Height="25" Margin="0,6,1,0"  VerticalAlignment="Top" Text="0" FontSize="15"/>
+                        <GroupBox Header="右腿足跟" DockPanel.Dock="Left" Margin="5,0,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
+                            <TextBox x:Name="Pressure4_Textbox" IsReadOnly="True" Width="70" Height="25" Margin="0,6,1,0"  VerticalAlignment="Top" Text="0" FontSize="15"/>
                         </GroupBox>
-                        <GroupBox Header="压力传感器5" DockPanel.Dock="Left" Margin="5,0,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
-                            <TextBox x:Name="Pressure5_Textbox" IsReadOnly="True" Height="25" Margin="0,6,1,0"  VerticalAlignment="Top" Text="0" FontSize="15"/>
+                        <GroupBox Header="右腿足侧" DockPanel.Dock="Left" Margin="5,0,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
+                            <TextBox x:Name="Pressure5_Textbox" IsReadOnly="True" Width="70" Height="25" Margin="0,6,1,0"  VerticalAlignment="Top" Text="0" FontSize="15"/>
                         </GroupBox>
-                        <GroupBox Header="压力传感器6" DockPanel.Dock="Left" Margin="5,0,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
-                            <TextBox x:Name="Pressure6_Textbox" IsReadOnly="True" Height="25" Margin="0,6,1,0"  VerticalAlignment="Top" Text="0" FontSize="15"/>
+                        <GroupBox Header="右腿足尖" DockPanel.Dock="Left" Margin="5,0,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
+                            <TextBox x:Name="Pressure6_Textbox" IsReadOnly="True" Width="70" Height="25" Margin="0,6,1,0"  VerticalAlignment="Top" Text="0" FontSize="15"/>
                         </GroupBox>
                         <GroupBox Header="压力传感器7" DockPanel.Dock="Left" Margin="5,0,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
-                            <TextBox x:Name="Pressure7_Textbox" IsReadOnly="True" Height="25" Margin="0,6,1,0"  VerticalAlignment="Top" Text="0" FontSize="15"/>
+                            <TextBox x:Name="Pressure7_Textbox" IsReadOnly="True" Width="70" Height="25" Margin="0,6,1,0"  VerticalAlignment="Top" Text="0" FontSize="15"/>
                         </GroupBox>
                         <GroupBox Header="压力传感器8" DockPanel.Dock="Right" Margin="5,0,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
-                            <TextBox x:Name="Pressure8_Textbox" IsReadOnly="True" Height="25" Margin="0,6,1,0"  VerticalAlignment="Top" Text="0" FontSize="15"/>
+                            <TextBox x:Name="Pressure8_Textbox" IsReadOnly="True" Width="70" Height="25" Margin="0,6,1,0"  VerticalAlignment="Top" Text="0" FontSize="15"/>
                         </GroupBox>
                     </DockPanel>
                 </GroupBox>

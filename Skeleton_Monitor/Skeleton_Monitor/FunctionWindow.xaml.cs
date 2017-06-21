@@ -1118,7 +1118,6 @@ namespace Skeleton_Monitor
 
                                 if (methods._angle[2] < -54)//测试时左腿停在57°左右，推测左腿角度直接从54°以下跳到55°以上，故把阈值从55改为90
                                     mid_flag = true;
-
                             }
 
                             else
@@ -1502,7 +1501,68 @@ namespace Skeleton_Monitor
                         byte[] rSpeedBytes1 = BitConverter.GetBytes(rSpeed1);
                         byte[] rSpeedBytes2 = BitConverter.GetBytes(rSpeed2);
 
-                        if(methods.tempPress[0] > 300 && methods.tempPress[3] > 300)
+                        //tempPress[0]左腿足跟
+                        //tempPress[1]左腿足侧
+                        //tempPress[2]左腿足尖
+                        //tempPress[3]右腿足跟
+                        //tempPress[4]右腿足侧
+                        //tempPress[5]右腿足尖
+
+                        //双脚站立支撑时电机停机
+                        if ((methods.tempPress[0] > 200 && methods.tempPress[3] > 200) || (methods.tempPress[1] > 200 && methods.tempPress[4] > 200) || (methods.tempPress[2] > 200 && methods.tempPress[5] > 200))
+                        {
+                            cmdSendBytes[5] = 0;
+                            cmdSendBytes[6] = 0;
+                            cmdSendBytes[7] = 0;
+                            cmdSendBytes[8] = 0;
+                            cmdSendBytes[9] = 0;
+                            cmdSendBytes[10] = 0;
+                            cmdSendBytes[11] = 0;
+                            cmdSendBytes[12] = 0;
+                        }
+
+                        //左腿离地右腿支撑：迈左腿
+                        if ((methods.tempPress[0] < 100 && (methods.tempPress[3] > 300 || methods.tempPress[4] > 300 || methods.tempPress[5] > 300))
+                        {
+                            if (mid_flag == false && methods._angle[2] > -90)//左腿0前1后从0°向-45°弯曲
+                            {
+                                cmdSendBytes[5] = 1;
+                                cmdSendBytes[6] = 1;
+                                cmdSendBytes[7] = rSpeedBytes1[1];
+                                cmdSendBytes[8] = rSpeedBytes1[0];
+
+                                if (methods._angle[2] < -40)
+                                {
+                                    cmdSendBytes[7] = rSpeedBytes2[1];
+                                    cmdSendBytes[8] = rSpeedBytes2[0];
+                                }
+
+                                if (methods._angle[2] < -45)
+                                    mid_flag = true;
+                            }
+                            else
+                            {
+                                if (mid_flag == true && methods._angle[2] < -5)//左腿0前1后从-45°到-5°伸直
+                                {
+                                    cmdSendBytes[5] = 1;
+                                    cmdSendBytes[6] = 0;
+                                    cmdSendBytes[7] = rSpeedBytes1[1];
+                                    cmdSendBytes[8] = rSpeedBytes1[0];
+
+                                    if (methods._angle[2] > -10)
+                                    {
+                                        cmdSendBytes[7] = rSpeedBytes2[1];
+                                        cmdSendBytes[8] = rSpeedBytes2[0];
+                                    }
+                                }
+                                else
+                                {
+                                    cmdSendBytes[5] = 0;
+                                }
+                            }
+
+
+                        }
                     }
 
                     else
