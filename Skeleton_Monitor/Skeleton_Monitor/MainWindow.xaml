@@ -7,8 +7,7 @@
         mc:Ignorable="d" WindowStartupLocation="CenterScreen"
         Title="外骨骼控制界面"  Icon="Image/logo2016.png" 
         Height="524" Width="1040"
-        MinHeight="524" MinWidth="1040" Closed="MainWindow_OnClosed"
-        MaxHeight="524" MaxWidth="1040">
+        MinHeight="524" MinWidth="1040" Closed="MainWindow_OnClosed">
     <Grid>
         <Frame Source="FunctionWindow.xaml"  NavigationUIVisibility="Hidden" Navigated="Frame_Navigated" ></Frame>
     </Grid>

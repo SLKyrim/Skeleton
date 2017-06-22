@@ -194,20 +194,20 @@
                                 </StackPanel>
                             </StackPanel>
                         </GroupBox>
-                        <!--数据采集-->
-                        <GroupBox Header="动作模式选择面板" DockPanel.Dock="Left" Margin="5,0,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
+                        <!--动作模式选择面板-->
+                        <!--<GroupBox Header="动作模式选择面板" DockPanel.Dock="Left" Margin="5,0,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
                             <DockPanel>
                                 <Button x:Name="ActionPick_button" IsEnabled="True" DockPanel.Dock="Top" Content="拾取重物"  Margin="3" Width="70" Click="ActionPickButton_Click"/>
                                 <Button x:Name="ActionWalk_button" IsEnabled="True" DockPanel.Dock="Top" Content="行走"  Margin="3" Width="70" Click="ActionWalkButton_Click"/>
                                 <Button x:Name="ActionWalkDo_button" IsEnabled="False" DockPanel.Dock="Top" Content="行走执行"  Margin="3" Width="70" Click="ActionWalkButtonDo_Click"/>
                                 <Button x:Name="ActionWalkEnd_button" IsEnabled="False" DockPanel.Dock="Bottom" Content="行走结束"  Margin="3" Width="70" Click="ActionWalkButtonEnd_Click"/>
                             </DockPanel>
-                        </GroupBox>
+                        </GroupBox>-->
                         <GroupBox Header="电机速度设定" DockPanel.Dock="Left" Margin="5,0,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
                             <DockPanel>
-                                <Label  Content="电机速度设定" DockPanel.Dock="Top" Margin="10,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-                                <TextBox x:Name="MotorSpeed_textBox" DockPanel.Dock="Top" Margin="20,0,0,0" HorizontalAlignment="Left" Height="23" VerticalAlignment="Top" Width="60">3000</TextBox>
-                                <Button x:Name="SetSpeed_button" Click="SetSpeedButton_Click" DockPanel.Dock="Bottom" Margin="17,3,13,0">确认</Button>
+                                <Label  Content="电机速度设定" DockPanel.Dock="Top" Margin="70,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                                <TextBox x:Name="MotorSpeed_textBox" DockPanel.Dock="Top" Margin="80,0,0,0" HorizontalAlignment="Left" Height="23" VerticalAlignment="Top" Width="60">3000</TextBox>
+                                <Button x:Name="SetSpeed_button" Click="SetSpeedButton_Click" Width="70" Height="20" DockPanel.Dock="Bottom" Margin="17,3,13,0">确认</Button>
                             </DockPanel>
                         </GroupBox>
                     </DockPanel>
