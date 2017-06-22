@@ -313,7 +313,7 @@
                         <GroupBox Header="角度传感器6" DockPanel.Dock="Left" Margin="5,5,0,5" BorderBrush="{Binding ElementName=serialPortSlectPanel, Path=BorderBrush}" BorderThickness="{Binding ElementName=serialPortSlectPanel, Path=BorderThickness}">
                             <TextBox x:Name="Angle6_Textbox" Width="80" IsReadOnly="True" Height="25" Margin="0,6,1,0"  VerticalAlignment="Top" Text="0" FontSize="15"/>
                         </GroupBox>
-                        <Button x:Name="AngleInit_button" DockPanel.Dock="Top" IsEnabled="False" Content="角度初始化"  Margin="0,3,0,0" Width="88" Click="AngleInitializeButton_Click"/>
+                        <Button x:Name="AngleInit_button" DockPanel.Dock="Top" IsEnabled="True" Content="角度初始化"  Margin="0,3,0,0" Width="88" Click="AngleInitializeButton_Click"/>
                         <Button x:Name="ActionStart_button" DockPanel.Dock="Top" IsEnabled="False" Content="动作开始"  Margin="0,3,0,0" Width="88" Click="ActionStartButton_Click"/>
                         <Button x:Name="ActionStop_button" DockPanel.Dock="Top" IsEnabled="False" Content="动作停止"  Margin="0,3,0,0" Width="88"   Click="ActionStopButton_Click"/>
                     </DockPanel>

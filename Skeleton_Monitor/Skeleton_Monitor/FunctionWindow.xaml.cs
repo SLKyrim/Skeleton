@@ -608,6 +608,7 @@ namespace Skeleton_Monitor
 
             methods._angleInitialization = new double[6] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 
+            AngleInit_button.IsEnabled = true;
             ActionStart_button.IsEnabled = false;
             ActionStop_button.IsEnabled = false;
             //ActionPick_button.IsEnabled = true;
