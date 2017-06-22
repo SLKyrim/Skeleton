@@ -68,17 +68,18 @@ namespace Skeleton_Monitor
         public bool isActionWalk = false;
 
         //ActionWalk所需参数
-        public bool DSt_left = false;         //进入左腿摆动相的过渡相
-        public bool DSt_right = false;        //进入右腿摆动相的过渡相
-        public bool init_LSW = false;   //左腿摆动相前期
-        public bool mid_LSW = false;    //左腿摆动相中期
-        public bool term_LSW = false;   //左腿摆动相后期
-        public bool init_RSW = false;   //右腿摆动相前期
-        public bool mid_RSW = false;    //右腿摆动相中期
-        public bool term_RSW = false;   //右腿摆动相后期
+        //public bool DSt_left = false;   //进入左腿摆动相的过渡相
+        //public bool DSt_right = false;  //进入右腿摆动相的过渡相
+        //public bool init_LSW = false;   //左腿摆动相前期
+        //public bool mid_LSW = false;    //左腿摆动相中期
+        //public bool term_LSW = false;   //左腿摆动相后期
+        //public bool init_RSW = false;   //右腿摆动相前期
+        //public bool mid_RSW = false;    //右腿摆动相中期
+        //public bool term_RSW = false;   //右腿摆动相后期
         public bool mid_flag = false;
         public bool do_walk = false;
         public int status = 0;
+        public bool stop_walk = false;  //穿戴者通过按压力传感器8进行自主停机
 
         //电机执行速度
         int rSpeed1 = 3000;
@@ -621,14 +622,14 @@ namespace Skeleton_Monitor
             istrueY = false;
             isActionPick = false;
             isActionWalk = false;
-            DSt_left = false;         //进入左腿摆动相的过渡相
-            DSt_right = false;        //进入右腿摆动相的过渡相
-            init_LSW = false;         //左腿摆动相前期
-            mid_LSW = false;          //左腿摆动相中期
-            term_LSW = false;         //左腿摆动相后期
-            init_RSW = false;         //右腿摆动相前期
-            mid_RSW = false;          //右腿摆动相中期
-            term_RSW = false;         //右腿摆动相后期
+            //DSt_left = false;         //进入左腿摆动相的过渡相
+            //DSt_right = false;        //进入右腿摆动相的过渡相
+            //init_LSW = false;         //左腿摆动相前期
+            //mid_LSW = false;          //左腿摆动相中期
+            //term_LSW = false;         //左腿摆动相后期
+            //init_RSW = false;         //右腿摆动相前期
+            //mid_RSW = false;          //右腿摆动相中期
+            //term_RSW = false;         //右腿摆动相后期
             mid_flag = false;
             do_walk = false;
 
@@ -672,12 +673,14 @@ namespace Skeleton_Monitor
         private void ActionWalkButtonDo_Click(object sender, RoutedEventArgs e)//点击【行走执行】按钮时执行
         {
             do_walk = true;
+            stop_walk = true;
             ActionStop_button.IsEnabled = false;
         }
 
         private void ActionWalkButtonEnd_Click(object sender, RoutedEventArgs e)//点击【行走结束】按钮时执行
         {
             do_walk = false;
+            stop_walk = false;
             ActionStop_button.IsEnabled = true;
         }
 
@@ -1496,7 +1499,7 @@ namespace Skeleton_Monitor
                 if (IsTrueForefootZero)
                 {
 
-                    if (do_walk)
+                    if (do_walk && stop_walk)
                     {
                         byte[] rSpeedBytes1 = BitConverter.GetBytes(rSpeed1);
                         byte[] rSpeedBytes2 = BitConverter.GetBytes(rSpeed2);
@@ -1509,8 +1512,10 @@ namespace Skeleton_Monitor
                         //tempPress[5]右腿足尖
 
                         //双脚站立支撑时电机停机
-                        if ((methods.tempPress[0] > 300 || methods.tempPress[1] > 300 || methods.tempPress[2] > 300) && (methods.tempPress[3] > 300 || methods.tempPress[4] > 300 || methods.tempPress[5] > 300))
+                        if ((methods.tempPress[0] > 150 || methods.tempPress[1] > 150 || methods.tempPress[2] > 150) && (methods.tempPress[3] > 150 || methods.tempPress[4] > 150 || methods.tempPress[5] > 150))
                         {
+                            status = 1;
+
                             mid_flag = false;
 
                             cmdSendBytes[5] = 0;
@@ -1526,25 +1531,29 @@ namespace Skeleton_Monitor
                         //左腿离地右腿支撑：迈左腿，左腿足跟先离地
                         if (methods.tempPress[0] < 100 && (methods.tempPress[3] > 300 || methods.tempPress[4] > 300 || methods.tempPress[5] > 300))
                         {
-                            if (mid_flag == false && methods._angle[2] > -90)//左腿0前1后从0°向-45°弯曲
+                            status = 2;
+
+                            cmdSendBytes[9] = 0;
+
+                            if (mid_flag == false && methods._angle[2] > -90)//左腿0前1后从0°向-25°弯曲
                             {
                                 cmdSendBytes[5] = 1;
                                 cmdSendBytes[6] = 1;
                                 cmdSendBytes[7] = rSpeedBytes1[1];
                                 cmdSendBytes[8] = rSpeedBytes1[0];
 
-                                if (methods._angle[2] < -40)
+                                if (methods._angle[2] < -20)
                                 {
                                     cmdSendBytes[7] = rSpeedBytes2[1];
                                     cmdSendBytes[8] = rSpeedBytes2[0];
                                 }
 
-                                if (methods._angle[2] < -45)
+                                if (methods._angle[2] < -25)
                                     mid_flag = true;
                             }
                             else
                             {
-                                if (mid_flag == true && methods._angle[2] < -5)//左腿0前1后从-45°到-5°伸直
+                                if (mid_flag == true && methods._angle[2] < -5)//左腿0前1后从-25°到-5°伸直
                                 {
                                     cmdSendBytes[5] = 1;
                                     cmdSendBytes[6] = 0;
@@ -1567,32 +1576,36 @@ namespace Skeleton_Monitor
                         //右腿离地左腿支撑
                         if (methods.tempPress[3] < 100 && (methods.tempPress[0] > 300 || methods.tempPress[1] > 300 || methods.tempPress[2] > 300))
                         {
-                            if (mid_flag == false && methods._angle[3] < 90)//右腿0后1前从0°向45°弯曲
+                            status = 3;
+
+                            cmdSendBytes[5] = 0;
+
+                            if (mid_flag == false && methods._angle[3] < 90)//右腿0后1前从0°向30°弯曲
                             {
                                 cmdSendBytes[9] = 1;
                                 cmdSendBytes[10] = 0;
                                 cmdSendBytes[11] = rSpeedBytes1[1];
                                 cmdSendBytes[12] = rSpeedBytes1[0];
 
-                                if (methods._angle[3] > 40)
+                                if (methods._angle[3] > 25)
                                 {
                                     cmdSendBytes[11] = rSpeedBytes2[1];
                                     cmdSendBytes[12] = rSpeedBytes2[0];
                                 }
 
-                                if (methods._angle[3] > 45)
+                                if (methods._angle[3] > 30)
                                     mid_flag = true;
                             }
                             else
                             {
-                                if (mid_flag == true && methods._angle[3] > 5)//右腿0后1前从45°到5°伸直
+                                if (mid_flag == true && methods._angle[3] > 10)//右腿0后1前从30°到10°伸直
                                 {
                                     cmdSendBytes[9] = 1;
                                     cmdSendBytes[10] = 1;
                                     cmdSendBytes[11] = rSpeedBytes1[1];
                                     cmdSendBytes[12] = rSpeedBytes1[0];
 
-                                    if (Math.Abs(methods._angle[3]) < 10)
+                                    if (Math.Abs(methods._angle[3]) < 15)
                                     {
                                         cmdSendBytes[11] = rSpeedBytes2[1];
                                         cmdSendBytes[12] = rSpeedBytes2[0];
@@ -1603,6 +1616,110 @@ namespace Skeleton_Monitor
                                     cmdSendBytes[9] = 0;
                                 }
                             }
+                        }
+
+                        ////测试用状态
+                        //if (methods.tempPress[0] < 100 && methods.tempPress[3] < 100)
+                        //{
+                        //    status = 4;
+
+                        //    mid_flag = false;
+
+                        //    cmdSendBytes[5] = 0;
+                        //    cmdSendBytes[6] = 0;
+                        //    cmdSendBytes[7] = 0;
+                        //    cmdSendBytes[8] = 0;
+                        //    cmdSendBytes[9] = 0;
+                        //    cmdSendBytes[10] = 0;
+                        //    cmdSendBytes[11] = 0;
+                        //    cmdSendBytes[12] = 0;
+                        //}
+
+                        //保护状态
+                        if ((methods.tempPress[0] < 100 && methods.tempPress[1] < 100 && methods.tempPress[2] < 100) && (methods.tempPress[3] < 100 && methods.tempPress[4] < 100 && methods.tempPress[5] < 100))
+                        {
+                            status = 4;
+
+                            mid_flag = false;
+
+                            cmdSendBytes[5] = 0;
+                            cmdSendBytes[6] = 0;
+                            cmdSendBytes[7] = 0;
+                            cmdSendBytes[8] = 0;
+                            cmdSendBytes[9] = 0;
+                            cmdSendBytes[10] = 0;
+                            cmdSendBytes[11] = 0;
+                            cmdSendBytes[12] = 0;
+                        }
+
+                        //穿戴者自主停机
+                        if (methods.tempPress[7] > 1000)
+                        {
+                            status = 5;
+
+                            cmdSendBytes[5] = 0;
+                            cmdSendBytes[6] = 0;
+                            cmdSendBytes[7] = 0;
+                            cmdSendBytes[8] = 0;
+                            cmdSendBytes[9] = 0;
+                            cmdSendBytes[10] = 0;
+                            cmdSendBytes[11] = 0;
+                            cmdSendBytes[12] = 0;
+
+                            stop_walk = false;
+                        }
+
+                        try
+                        {
+                            methods.SendControlCMD(cmdSendBytes);
+                        }
+                        catch
+                        {
+                            //MessageBox.Show("未正确选择电机串口!");
+                            statusBar.Background = new SolidColorBrush(Color.FromArgb(255, 150, 50, 50));
+                            statusInfoTextBlock.Text = "未正确选择电机串口！请选择正确电机串口后重新按下【动作开始】按钮";
+
+                            IsTrueClickDown = false;
+                            ActionStart_button.Content = "动作开始";
+                            ActionStart_button.IsEnabled = true;
+                            ActionStop_button.IsEnabled = false;
+                        }
+
+                        switch (status)//动作测试监控，方便了解哪个阶段出现问题
+                        {
+
+                            case 0:
+                                break;
+
+                            case 1:
+                                {
+                                    Out_textBox.Text = "双腿站立";
+                                    break;
+                                }
+
+                            case 2:
+                                {
+                                    Out_textBox.Text = "迈左腿";
+                                    break;
+                                }
+
+                            case 3:
+                                {
+                                    Out_textBox.Text = "迈右腿";
+                                    break;
+                                }
+
+                            case 4:
+                                {
+                                    Out_textBox.Text = "保护状态";
+                                    break;
+                                }
+
+                            case 5:
+                                {
+                                    Out_textBox.Text = "穿戴者已进行停机操作，请停止动作并重新复位后再按【行走执行】方可重启";
+                                    break;
+                                }
                         }
                     }
 
